@@ -1,0 +1,101 @@
+\chapter{Conclusion}
+\label{ch:conclusion}
+% -----------------------------------------------------------------------------
+
+Since the beginning of the project, it was clear that the project will not be finished at the end of this semester.
+He was programmed to be realized by two students with the possibility of continuing this project in the bachelor thesis.
+
+\section{Summary of the work done}
+\label{ch:conclusion:summary}
+
+The work done is above the expectations of the beginning of the project.
+The uBoMa isn't totally controlled, the rotary valve is fully implemented like the readability of the pressure sensor.
+With the pressure sensor, is connected to a Mikroe device that is connected to the Rapsberry Pi through the I2C protocol.
+The pressure controller is not implemented du to the lack of time.
+The SPI protocol wasn't studied but it's necessary to control the current loop.
+
+The web application took more time than planned at the beginning of the project.
+To this part, the project is well advanced.
+The basis of the web application is done, it can interact with the core application with the REST API and the web socket.
+All the devices or the actions are not implemented but it can easily be extended.
+
+The documentation is made to help anyone who wants to continue this project.
+They are some guidelines and some explanations about the technologies used.
+
+To conclude, this semester project has been here to fix the limits of the project and find the best way to continue this project.
+From this point of view, the project is a success.
+
+
+\section{Problems encountered}
+\label{ch:conclusion:problems}
+
+This project has been challenging for a computer scientist that has never worked with electronics.
+The choice of the devices was a difficult task because there are a lot of parameters to take into account.
+During the realization, a lot of problems were encountered, like how the alimentation for the pressure sensor and controller that wasn't taken into account at the beginning of the project.
+The lack of documentation for the adapters from Mikroe was a problem too.
+They gave some examples but it needs an SDK which is paying.
+
+C++ is also a language that is difficult to use and it didn't provide a lot of facilities to the programmer.
+This is difficult to create a pipeline that use the cross compilation and test the project because it needs some libraries that are directly installed on the Raspberry Pi.
+
+
+\section{Future work}
+\label{ch:conclusion:future}
+
+As mentioned before, this project will be continued and this semester project was here to find the limits and how to continue.
+
+\subsection{Pressure controller}
+\label{ch:conclusion:future:pressure_controller}
+
+First of all, the pressure controller need to be implemented.
+This step needs the usage of The SPI protocol.
+I recommend to search a driver for the device current-loop T 2 click from Mikroe that works with the Raspberry Pi.
+If it's not possible, the driver needs to be implemented.
+
+
+\subsection{Web application}
+\label{ch:conclusion:future:web_application}
+
+The web application is not finished.
+For each device, it could be interesting to add a card the advanced page.
+This card will contain the information about the device and the possibility to change the configuration.
+For the existing devices, some actions could be added.
+To do that, some new endpoints need to be added to the REST API and the information sent through the web socket need to be extended.
+This application can also be declined into a mobile application that will communicate with the core application through Bluetooth.
+
+
+\subsection{Production environment}
+\label{ch:conclusion:future:production_environment}
+
+The production environment is not implemented.
+The core application needs to implement the \acrfull{opc}.
+The \acrfull{mtp} is a must-have but before it needs to be analyzed.
+
+
+\subsection{Baseboard}
+\label{ch:conclusion:future:baseboard}
+
+One of the goals of the project was to reduce the size and number of wires of the whole product.
+Actually, to connect the different devices there are a lot of wires and they need to be connected alimented externally because the Raspberry Pi can't provide enough power.
+To sell this product to a customer, it could be a good idea to create a custom baseboard.
+As the project is on Raspberry Pi 4, it can easily be ported to the Raspberry Pi Compute Module 4.
+This module contains only the processor and the memory, the rest of the components need to be added on a custom baseboard.
+To do that, the Raspberry Pi Foundation provides a reference design that can be used to create a custom baseboard.
+It could be a good thing to add an electronic engineer to the team to help the computer scientist to create this baseboard and other tasks.
+
+
+\section{Personal thoughts}
+\label{ch:conclusion:personal}
+
+This project was a good experience for me.
+I learned a lot of things about electronics and how to deal with the embedded world.
+This work was quite new for me and I'm happy to have done it.
+
+I wish I could have done more things but I lost a lot of times to understand how the devices work and how to use them.
+I was also new to C++ and I spend sometimes to create the best architecture for the project and the CMake files.
+
+For me, I wish I could have done more, but I hope that what I have provided will allow Mr. Vial to continue this project.
+I feel that I have provided the necessary documentation by doing the PVs every week and by bringing mini presentations despite some delays.
+I also regret the time I could not spend on the project during the last weeks because of my visa problems for my bachelor work in Berkeley.
+It is true that I did not necessarily keep up to date with the schedule that was set up at the beginning of the project, but I find it very difficult to anticipate the tasks of a 12-week project.
+Finally, I am quite happy with the documentation provided and I hope that it can help future people who will work on this project.

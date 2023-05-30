@@ -1,0 +1,13 @@
+.compile_pdf:
+  variables:
+    FILE: ""
+  stage: report
+  image: texlive/texlive:latest  # use a Docker image for LaTeX from https://hub.docker.com/
+  script:
+    - chmod +x ci/latex_builder.sh
+    - ci/latex_builder.sh $FILE
+  artifacts:
+    paths:
+      - doc/$FILE.pdf  # instruct GitLab to keep the main.pdf file
+      - doc/$FILE.svg
+
