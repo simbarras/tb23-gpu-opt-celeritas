@@ -1,4 +1,70 @@
 \chapter{Goals}
 \label{spec:ch:goals}
 
--
+The list of goals is the different deliverables of the project and the main ones will be found in hte list of milestones.
+The goals are described in the following sections using the \acrshort{smart} method.
+
+At the end of the project, the profiling must show an improvement of the performance specialy in the part of the Runge-Kutta method~\cite{Runge-Kutta-methods}.
+To mesure it, the profiling must be done before and after each step of the project.
+
+
+\section{Mandatory requirements}
+\label{spec:ch:goals:mandatory-requirements}
+
+These requirements must be delivered at the end of the project.
+
+
+\subsection{Drive into the project}
+\label{spec:ch:goals:mandatory-requirements:drive-into-the-project}
+
+Before starting to work on the project, some things need to be learned.
+The goal of this step is to produce something but to be able to work on the project.
+
+First of all, the programming oriented \acrshort{gpu} must be learned.
+During the bachelor's classes, there is no course about that and the lamguage \acrshort{cuda} is totally new.
+
+Then, the project Celeritas must be understood, not in the details but the general purpose is a good things to have a better background.
+It's also important to follow the guidelines of the project and to not reinvent the wheel.
+A large part of the project is already done.
+
+
+\subsection{Profile the code}
+\label{spec:ch:goals:mandatory-requirements:profile-the-code}
+
+To be able to improve the performance of the code, the first step is to profile the code.
+This include to be able to compile the code and launch it.
+
+To compile the code, the tool Module~\cite{Module} and Spack~\cite{Spack} are used.
+These tool don't need to be fully understood but the basic usage must be known to debug the compilation.
+
+To launch the code, the profiler tool of Nvidia must be used and the script to run a job on Perlmutter~\cite{Perlmutter} must be known.
+The knowledge gained in the previous step must be used to test the limit of the project.
+
+
+\subsection{Improve the performance}
+\label{spec:ch:goals:mandatory-requirements:improve-the-performance}
+
+The main goal of the project is to improve the performance of the Runge-Kutta method~\cite{Runge-Kutta-methods}.
+This last mandatory requirement is the aim of the thesis and the most important part of the project.
+It will require the knowledge gained in the first step to improve the performance and the knowledge gained in the second step to test if the change improve or not the performance.
+
+This step include a good understanding of the Runga-Kutta method~\cite{Runge-Kutta-methods}.
+The goal is to identify how this code can be parrallelized using the more than one thread to compute the result.
+All the advantage of the \acrshort{gpu}, like the shared memory or the warp shufflle instruction, must be used to improve the performance.
+
+
+\section{Optional requirements}
+\label{spec:ch:goals:optional-requirements}
+
+These requirements are not mandatory but they are a good addition to the project.
+
+\subsection{Another performance improvement}
+\label{spec:ch:goals:optional-requirements:another-performance-improvement}
+
+If the performance of the Runge-Kutta method~\cite{Runge-Kutta-methods} is improved, another part of the code can be improved.
+This will be done only if the first part is done and if there is enough time to do it.
+All the knowledge gained in the first two steps will be used the same way as the main goal.
+To know which part of the code can be improved, the profiling must be done again.
+To clsoe this step, the final profiling must show an improvement of the performance like the previous improvement.
+This step can be done multiple times if there is enough time.
+
