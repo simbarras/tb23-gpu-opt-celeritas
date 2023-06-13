@@ -14,7 +14,7 @@ stages:
   - publish
 
 variables:
-  MIRROR_REPO: "https://github.com/simbarras/tb23-gpu-opt-celeritas.git"
+  MIRROR_REPO: "https://simbarras:$GITHUB_PASSWORD@github.com/simbarras/tb23-gpu-opt-celeritas.git"
 
 include:
   - template: Security/SAST.gitlab-ci.yml
@@ -25,10 +25,8 @@ update-mirror:
   image: alpine:latest
   script:
     - apk add --no-cache git
-    - git config --global user.email "gitlab-ci@gitlab.forge.hefr.ch"
-    - git config --global user.name "GitLab CI"
+    # Pushing to the mirror repo on GitHub
     - git push --mirror $MIRROR_REPO
-
 sast:
   stage: test
 
