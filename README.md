@@ -34,7 +34,7 @@ Other proofreaders, translators and other tools will probably be used under my s
 Other sources such as Wikipedia or other sites and articles will be read for inspiration and mentioned if necessary.
 
 Finally, even if there's no annotation mentioning the use of a tool, consider that everything I've done could have been manipulated by an AI or any other tool.
-However, I remain the captain of the ship and I assure you that I understand and am able to explain what is being produced.
+However, I remain the only captain of the ship and I assure you that I understand and am able to explain what is being produced.
 This includes assuming all responsibility for the work I provide.
 
 ## Getting started
