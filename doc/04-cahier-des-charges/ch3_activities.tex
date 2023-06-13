@@ -1,4 +1,87 @@
 \chapter{Activities}
 \label{spec:ch:activities}
 
--
+Activities are all the tasks that need to be done to complete the project. These tasks
+come directly from the goals. The planning is based on the activities listed above.
+
+All the tasks aren't mentioning the documentation, but it's implicit that all the tasks will be reported in the final report.
+
+\section{Learn GPU Programming}
+\label{spec:ch:activities:learn-gpu-programming}
+
+This step will launch the project and it can be without any knowledge of the project Celeritas, the objective is to learn the fundamental of the GPU programming.
+
+
+\subsection{Learn CUDA}
+\label{spec:ch:activities:learn-gpu-programming:learn-cuda}
+
+First of all, the programming oriented \acrshort{gpu} and the language \acrshort{cuda} are totally new, there no class about that in the bachelor program.
+
+\acrlong{lbl} provide a course about CUDA~\cite{cuda-training} and some exercices~\cite{cuda-series} to learn the language. 
+
+
+\subsection{Write cheat sheet}
+\label{spec:spec:ch:activities:learn-gpu-programming:write-cheat-sheet}
+
+For each course, a cheat sheet will be produced to summarize the important notions and provide a quick access to the information during the realization of the project.
+Not every course will produce a new one, a cheat sheet can be improved.
+
+
+\section{Understand the project}
+\label{spec:ch:activities:understand-the-project}
+The first step to do in the laboratory is to understand the project and the code.
+
+
+\subsection{Compile the code}
+\label{spec:ch:activities:understand-the-project:compile-the-code}
+Celeritas is made to be run on \acrshort{hpc} and it come with new tool to build it.
+The first step is to understand the basis of Module~\cite{Module} and Spack~\cite{Spack} to be able to compile the code.
+This task is the first one to do in the laboratory.
+
+
+\subsection{Launch Job on Perlmutter}
+\label{spec:ch:activities:understand-the-project:launch-job-on-perlmutter}
+Perlmutter~\cite{Perlmutter} is the new \acrshort{hpc} of \acrshort{nersc}.
+To launch a job on this kind of machine, it's not a simple command as on a personal computer.
+This require a script that include some parameters and the command to launch the code.
+This step must be done before launching the code.
+
+
+\subsection{Profile the code}
+\label{specspec:ch:activities:understand-the-project:profile-the-code}
+To basis performance, in order to measure the improvement, the code must be profiled on Perlmutter.
+This step include launching the project and some basis knowledge of the Nvidia profiling tool.
+It is very important to know the limit of the code and announce some objective to reach before starting coding.
+When a profile is recorded and analyzed, this will close the second goal of the project.
+
+
+\subsection{Background the project}
+\label{spec:ch:activities:understand-the-project:background-the-project}
+Aside the other task, this one will be done in order to understand the background of the project.
+It is not mandatory to drive this bachelor thesis to the success but it will help to understand what the other members of the team are doing and to provide a better view of the project in the final report.
+
+
+
+\section{Improve the performance}
+\label{spec:ch:activities:improve-the-performance}
+This is the goal of this bachelor's thesis and to do that, several steps must be done to reach the objective.
+
+
+\subsection{Understand the code}
+\label{spec:ch:activities:improve-the-performance:understand-the-code}
+First of all, it's important to understand how the code is working to not reinvent the wheel with function that already exist.
+The objective is also to follow the guideline of the project to make easier the understanding and the maintainability.
+
+
+\subsection{Understand Runge-Kutta}
+\label{spec:ch:activities:improve-the-performance:understand-runge-kutta}
+As the optimization is on the Runge-Kutta method, it's important to understand how it's working and how it's implemented in the code.
+Some analysis must be done to know where it's possible to improve the performance and how.
+
+
+\subsection{Implement the optimization}
+\label{spec:ch:activities:improve-the-performance:implement-the-optimization}
+As all the analysis are done, it's time to implement a new version of the Runge-Kutta that use all the advantages of the \acrshort{gpu}.
+This step will be done in several iteration to be sure that the code is working and that the performance are improved.
+
+

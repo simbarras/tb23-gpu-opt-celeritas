@@ -14,25 +14,25 @@ To mesure it, the profiling must be done before and after each step of the proje
 These requirements must be delivered at the end of the project.
 
 
-\subsection{Drive into the project}
-\label{spec:ch:goals:mandatory-requirements:drive-into-the-project}
+\subsection{Learn GPU Programming}
+\label{spec:ch:goals:mandatory-requirements:learn-gpu-programming}
 
 Before starting to work on the project, some things need to be learned.
-The goal of this step is to produce something but to be able to work on the project.
-
-First of all, the programming oriented \acrshort{gpu} must be learned.
-During the bachelor's classes, there is no course about that and the lamguage \acrshort{cuda} is totally new.
-
-Then, the project Celeritas must be understood, not in the details but the general purpose is a good things to have a better background.
-It's also important to follow the guidelines of the project and to not reinvent the wheel.
-A large part of the project is already done.
+The goal of this step is to learn a new way of programming.
+To conclude this goal, no code will be produced except for exercises, but the important notions of programming with CUDA will be synthesized using cheat sheets.
+To take advantage of the delay between the begin of the bachelor thesis and the begin in the laboratory, this step will be done during this time.
 
 
-\subsection{Profile the code}
-\label{spec:ch:goals:mandatory-requirements:profile-the-code}
+\subsection{Understand the project}
+\label{spec:ch:goals:mandatory-requirements:understand-the-project}
 
-To be able to improve the performance of the code, the first step is to profile the code.
-This include to be able to compile the code and launch it.
+To be able to improve the performance of the code, the first step is understand the project.
+It's always better to understand the background of the project.
+Why it is needed, who will use it and which paradigm and tools are used.
+To measure the performance gained, it necessary to know where the project is at each step.
+To take a snapshot of the performance, a profile can be run.
+This includa that we can compile and launch the project.
+This step will be done at the begining of the project on place.
 
 To compile the code, the tool Module~\cite{Module} and Spack~\cite{Spack} are used.
 These tool don't need to be fully understood but the basic usage must be known to debug the compilation.
@@ -46,11 +46,9 @@ The knowledge gained in the previous step must be used to test the limit of the 
 
 The main goal of the project is to improve the performance of the Runge-Kutta method~\cite{Runge-Kutta-methods}.
 This last mandatory requirement is the aim of the thesis and the most important part of the project.
-It will require the knowledge gained in the first step to improve the performance and the knowledge gained in the second step to test if the change improve or not the performance.
-
-This step include a good understanding of the Runga-Kutta method~\cite{Runge-Kutta-methods}.
-The goal is to identify how this code can be parrallelized using the more than one thread to compute the result.
-All the advantage of the \acrshort{gpu}, like the shared memory or the warp shufflle instruction, must be used to improve the performance.
+It will require the knowledge gained in the first two step to improve the performance.
+To conclude this step, the profiling must show an improvement of the general performance and specialy in the part of the Runge-Kutta method~\cite{Runge-Kutta-methods}.
+This step will be done after the first two steps and it will occupate the whole time left.
 
 
 \section{Optional requirements}
