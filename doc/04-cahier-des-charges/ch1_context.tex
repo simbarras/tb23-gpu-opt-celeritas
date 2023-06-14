@@ -13,9 +13,9 @@ The goal is to improve the performance of the project Celeritas, which is a part
 \label{spec:ch:context:celeritas}
 
 The project Celeritas~\cite{Celeritas-Project} is a particle physics simulation software based on top of the Geant4~\cite{Geant4} project.
-Geant4 is a toolkit for the simulation of the passage of particles through matter.
+Geant4 is a toolkit for the simulation of the path of particles through matter.
 It is used by many simulation software in the field of particle physics.
-The fact is that Geant4 is not accelerated by \acrshort{gpu}s and the purpose of Celeritas is to optimize the performance by using \acrshort{gpu}s, especially for the collision of the photon.
+The fact is that Geant4 is not accelerated by \acrshort{gpu}s and the purpose of Celeritas is to optimize the performance by using them, especially for the collision of the photon.
 
 
 
@@ -24,7 +24,7 @@ The fact is that Geant4 is not accelerated by \acrshort{gpu}s and the purpose of
 
 This project simulates the path of the particles in the detector for an experiment made by the \acrfull{cern} with the \acrfull{lhc}.
 The aim is to verify that the measured data are correct but it is also useful to etalon the detector.
-In fact, the simulation also helps to compute the resulting error when due to a lack of precision.
+In fact, the simulation also uses to compute the resulting error if there is a lack of precision in a detector.
 
 To simulate the path of the particle, the software uses the Monte Carlo Integration~\cite{Monte-Carlo-integration} and the Runge-Kutta method~\cite{Runge-Kutta-methods}.
 
@@ -34,8 +34,8 @@ To simulate the path of the particle, the software uses the Monte Carlo Integrat
 
 The \acrfull{lbl} is a national laboratory in Berkeley, California.
 It is managed and operated by the University of California for the \acrfull{doe}.
-Since the lab take part of the \acrshort{doe}, it is a multidisciplinary research center where all the research is public and open source.
-The lab is situated in the hills of Berkeley and it is composed of many buildings and has a beautiful view of the San-Fransisco Bay \ref{spec:fig:context:lbl:lab-view}.
+Since the lab take part of the \acrshort{doe}, it includes that all the research is public and open source.
+The lab is situated in the hills of Berkeley and it is composed of many buildings and has a beautiful view of the San Francisco Bay \ref{spec:fig:context:lbl:lab-view}.
 
 \begin{figure}[ht]
     \centering
@@ -51,10 +51,10 @@ The Physics and X-Ray Science Group, where the project is done, is situated in b
 \subsection{The Need}
 \label{spec:ch:context:celeritas:need}
 
-Celeritas already accelerate Geant4 by using \acrshort{gpu}s.
-However, the team wants to improve the performance to be able to reduce the time of simulation.
-Before the bachelor thesis, the path of each particle is computed by a \acrshort{gpu} thread.
+Celeritas already accelerates Geant4 by using \acrshort{gpu}s.
+However, the team wants to improve the performance to be able to reduce the time of a simulation.
+Before the bachelor thesis, the path of each particle is computed by a \acrshort{gpu}'s thread.
 When the code is profiled, the distribution of the time is mainly taken by two parts of the code.
-The first one is a Geant4 computation that cannot be accelerated by Celeritas.
-The second one is the computation of the path using the Runge-Kutta method~\cite{Runge-Kutta-methods}.
+The first one is a Geant4 computation that cannot be accelerated by Celeritas and the second one is the computation of the path using the Runge-Kutta method~\cite{Runge-Kutta-methods}.
+That's the second part that the team wants to improve.
 

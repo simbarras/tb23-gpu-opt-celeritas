@@ -3,6 +3,10 @@
 [![Report version](https://gitlab.forge.hefr.ch/frederic.bapst/tb23-gpu-opt-celeritas/-/jobs/artifacts/main/raw/doc/report.svg?job=compile-report-pdf)](https://frederic.bapst.pages.forge.hefr.ch/tb23-gpu-opt-celeritas/Report_TB_2223_GPU-OPT.pdf)
 [![Specification version](https://gitlab.forge.hefr.ch/frederic.bapst/tb23-gpu-opt-celeritas/-/jobs/artifacts/main/raw/doc/specification.svg?job=compile-specification-pdf)](https://frederic.bapst.pages.forge.hefr.ch/tb23-gpu-opt-celeritas/Spec_TB_2223_GPU-OPT.pdf)
 
+> _develop_
+>
+>[![Report version](https://gitlab.forge.hefr.ch/frederic.bapst/tb23-gpu-opt-celeritas/-/jobs/artifacts/develop/raw/doc/report.svg?job=compile-report-pdf)](https://gitlab.forge.hefr.ch/frederic.bapst/tb23-gpu-opt-celeritas/-/jobs/artifacts/develop/raw/doc/report.pdf?job=compile-report-pdf)
+>[![Specification version](https://gitlab.forge.hefr.ch/frederic.bapst/tb23-gpu-opt-celeritas/-/jobs/artifacts/develop/raw/doc/specification.svg?job=compile-specification-pdf)](https://gitlab.forge.hefr.ch/frederic.bapst/tb23-gpu-opt-celeritas/-/jobs/artifacts/develop/raw/doc/specification.pdf?job=compile-specification-pdf)
 
 ## Generative AI and tools
 
@@ -15,7 +19,7 @@ When I code or write reports, I am accompanied by the "GitHub Copilot" tool.
 This tool constantly generates suggestions that I accept, inspire or ignore.
 You'll understand that it's not possible for me to define the exact lines generated.
 In addition, this raises a question: if Copilot suggests the exact line I wanted to write and I accept its proposal, is it generated or not?
-That's why you'll never find mention of generated lines unless I find the information relevant.
+That's why you'll never find a mention that says that a line is generated unless I find the information relevant.
 
 I use forums like Stackoverflow or chatbots like chatGPT in two ways.
 The most common is to solve a bug where I can't find the solution right away.
