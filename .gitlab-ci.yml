@@ -27,7 +27,8 @@ update-mirror:
     - apk add --no-cache git
     # Pushing to the mirror repo on GitHub
     - git remote add mirror $MIRROR_REPO
-    - git push mirror HEAD:$CI_COMMIT_REF_NAME --force
+    - git checkout -b $CI_COMMIT_BRANCH
+    - git push mirror $CI_COMMIT_BRANCH --force
 sast:
   stage: test
 
