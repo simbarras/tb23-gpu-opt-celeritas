@@ -29,10 +29,9 @@ update-mirror:
     - git remote add mirror $MIRROR_REPO
     - git checkout -b $CI_COMMIT_BRANCH
     - git push mirror $CI_COMMIT_BRANCH --force
+
 sast:
   stage: test
-
-
 
 # DOCUMENTATION
 
@@ -54,11 +53,11 @@ pages:
   script:
     - mkdir -p "public"
     # Add/update specification
-    - cp doc/specification.pdf public/Spec_TB_2223_GPU-OPT.pdf  # copy the pdf file into the public folder
-    - cp doc/specification.svg public/specification.svg  # copy the pdf file into the public folder
+    - cp doc/specification.pdf public/Spec_TB_2223_GPU-OPT.pdf # copy the pdf file into the public folder
+    - cp doc/specification.svg public/specification.svg # copy the pdf file into the public folder
     # Add/update report
-    - cp doc/report.pdf public/Report_TB_2223_GPU-OPT.pdf  # copy the pdf file into the public folder
-    - cp doc/report.svg public/report.svg  # copy the pdf file into the public folder
+    - cp doc/report.pdf public/Report_TB_2223_GPU-OPT.pdf # copy the pdf file into the public folder
+    - cp doc/report.svg public/report.svg # copy the pdf file into the public folder
   artifacts:
     paths:
-      - public  # instruct GitLab to keep the public folder
+      - public # instruct GitLab to keep the public folder

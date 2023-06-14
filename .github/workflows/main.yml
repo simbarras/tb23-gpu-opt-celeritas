@@ -1,0 +1,19 @@
+on:
+  push:
+
+name: Update Mirror
+
+jobs:
+  update-mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Install Git
+        run: sudo apt-get update && sudo apt-get install -y git
+      - name: Add mirror remote
+        run: git remote add mirror https://simon.barras:${{ secrets.GITLAB_TOKEN }}@gitlab.forge.hefr.ch/frederic.bapst/tb23-gpu-opt-celeritas.git
+      - name: Unshallow
+        run: git fetch --unshallow
+      - name: Push to mirror
+        run: git push mirror $(basename ${{ github.ref }}) --force
