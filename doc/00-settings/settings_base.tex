@@ -76,7 +76,7 @@
 \usepackage{subcaption}        % subcaptions
 \usepackage[section]{placeins} % allows to put float barriers
 
-% Float captions in italics, with label in margin
+% Float captions in italics, with the label in the margin
 %\DeclareCaptionLabelFormat{title}{#1 #2}
 %\DeclareCaptionLabelFormat{hangout}{\llap{#1 #2\hspace{5mm}}}
 %\captionsetup{
@@ -86,7 +86,7 @@
 %	font={it}
 %}
 
-% Caption with source for figure
+% Caption with a source for a figure
 % TODO: improve this to use square brackets like the normal "caption"
 \newcommand*{\captionsource}[3]{%
 	\caption[{#1}]{%
@@ -104,7 +104,7 @@
 \usepackage{tabularx} % better tables
 
 % Define new tabularx column types:
-%  - R: streteched right aligned
+%  - R: streteched right-aligned
 %  - C: stretched centered
 %  - N: left aligned, specified space
 \newcolumntype{R}{>{\raggedleft\arraybackslash}X}%
@@ -257,7 +257,7 @@ bibencoding=auto
 
 % % Glossary
 % % --------
-%\usepackage[xindy,toc, nonumberlist]{glossaries}
+%\usepackage[xindy, toc, nonumberlist]{glossaries}
 \usepackage[acronym]{glossaries}
 \makeglossaries
 \input{glossary}
