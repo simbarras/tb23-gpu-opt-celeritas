@@ -1,7 +1,7 @@
 \chapter{Goals}
 \label{spec:ch:goals}
 
-The list of goals is the different deliverables of the project and the main ones will be found in the list of milestones.
+The list of goals enumerates the different deliverables of the project and the main ones will be found in the list of milestones.
 The goals are described in the following sections using the \acrshort{smart} method.
 
 At the end of the project, the profiling must show an improvement of the performance, especially in the part of the Runge-Kutta method~\cite{Runge-Kutta-methods}.
@@ -28,7 +28,7 @@ To take advantage of the delay between the beginning of the bachelor thesis and 
 To be able to improve the performance of the code, the first step is to understand the project and it's always better to understand the background: why it is needed, who will use it and which paradigm and tools are used.
 
 To measure the performance gained, it is necessary to know where the project is at each step.
-To take a snapshot of the performance, a profile can be run and this includes that we can compile and launch the project.
+To take a snapshot of the performance, a profiler can be run and this includes that we can compile and launch the project.
 This step will be done at the beginning of the project on-site.
 
 
@@ -39,6 +39,7 @@ The main goal of the project is to improve the performance of the implementation
 This last mandatory requirement is the core of the thesis and the most important part of the project and it will require the knowledge gained in the first two steps to improve the performance.
 
 To conclude this step, the profiling must show an improvement of the general performance and especially in the part of the Runge-Kutta method~\cite{Runge-Kutta-methods}.
+If no improvement is found, it is necessary to find the reason and to document it.
 This step will be done after the first two steps and it will take the whole time left.
 
 
@@ -46,6 +47,14 @@ This step will be done after the first two steps and it will take the whole time
 \label{spec:ch:goals:optional-requirements}
 
 These requirements are not mandatory but they could be a good addition to the project.
+
+\subsection{General architecture}
+\label{spec:ch:goals:optional-requirements:general-optimization}
+
+The purpose of Celeritas is to be run on all kinds of \acrshort{gpu} and even on machines with just have a \acrshort{cpu}.
+During the optimization, the improvement will be checked on the Perlmutter~\cite{Perlmutter} which uses Nvidia A100 with the architecture Ampere~\cite{ampere} and some improvement can be only effective to this kind of \acrshort{gpu}.
+This goal is here to check if the improvement has a positive effect on other architectures and if it is not, to find a way to do that.
+To begin this step, the main goal needs to be finished.
 
 \subsection{Another performance improvement}
 \label{spec:ch:goals:optional-requirements:another-performance-improvement}
