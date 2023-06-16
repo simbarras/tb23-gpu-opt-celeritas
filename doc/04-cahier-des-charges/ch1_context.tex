@@ -23,20 +23,19 @@ The fact is that Geant4 is not accelerated by \acrshort{gpu}s and the purpose of
 \label{spec:ch:context:physics-simulation}
 
 This project simulates the path of the particles in the detector for any experiment.
-Actually, the two main are \acrshort{cms} and \acrshort{atlas}, the two made their experiments at the \acrfull{cern} with the \acrfull{lhc}.
+Actually, the two main customers are \acrshort{cms} and \acrshort{atlas}, the two made their experiments at the \acrfull{cern} with the \acrfull{lhc}.
 The aim is to verify that the measured data are correct but it is also useful to calibrate the detector.
 In fact, the simulation is also used to compute the resulting error if there is a lack of precision in a detector.
+To find the path of the particles, the software uses the algorithm of Prince Dormand~\cite{princeDormand}, a member of the family Runge-Kutta~\cite{Runge-Kutta-methods}, to solve differential equations.
 
 The \acrfull{atlas} experiment tracks the path of particles in the detector and produces coordinates points where particles traverse the sensors.
 Figure \ref{spec:fig:context:physics-simulation:lhc} represents this experiment.
 \begin{figure}[ht]
     \centering
-    \includegraphics[width=0.85\textwidth]{05-resources/img/spec/experiment-atlas.excalidraw.png}
+    \includegraphics[width=0.9\textwidth]{05-resources/img/spec/experiment-atlas.excalidraw.png}
     \caption{ATLAS experiment at CERN~\cite{atlas-experiment}}
     \label{spec:fig:context:physics-simulation:lhc}
 \end{figure}
-
-To find the path of the particles, the software uses the algorithm of Prince Dormand~\cite{princeDormand}, a member of the family Runge-Kutta~\cite{Runge-Kutta-methods}, to solve differential equations.
 
 
 \section{Lawrence Berkeley National Laboratory}
