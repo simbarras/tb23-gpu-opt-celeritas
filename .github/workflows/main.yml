@@ -1,6 +1,9 @@
 on:
   push:
 
+env:
+  GITLAB_PROJECT_ID: 15080
+
 name: Update Mirror
 
 jobs:
@@ -17,3 +20,16 @@ jobs:
         run: git fetch --unshallow
       - name: Push to mirror
         run: git push mirror $(basename ${{ github.ref }}) --force
+
+  wait-mirror-pipeline:
+    runs-on: ubuntu-latest
+    needs: update-mirror
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Install curl and jq
+        run: sudo apt-get update && sudo apt-get install -y curl jq
+      - name: Add execute permission to wait_gitlab.sh
+        run: chmod +x ci/wait_gitlab.sh
+      - name: Wait for mirror pipeline to finish
+        run: ci/wait_gitlab.sh ${{ secrets.GITLAB_TOKEN}} ${{ env.GITLAB_PROJECT_ID }} $(basename ${{ github.ref }})
