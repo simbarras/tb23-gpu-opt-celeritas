@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e # exit with nonzero exit code if anything fails
+
 # This script is used to build the LaTeX document and create a badge
 cd doc
 

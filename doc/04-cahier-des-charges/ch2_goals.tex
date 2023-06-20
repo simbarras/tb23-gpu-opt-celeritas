@@ -2,13 +2,14 @@
 \label{spec:ch:goals}
 
 The list of goals enumerates the different deliverables of the project and the main ones will be found in the list of milestones.
-The goals are described in the following sections using the \acrshort{smart} method.
+The goals are described in the following sections using the \acrshort{smart} method~\cite{how_to_write_smart_goals_kat_boogaard}.
 
-At the end of the project, profiling should not necessarily show a performance improvement.
+To achieve the goal of this project, the profiling should show a performance improvement.
+However, the thesis can be a success even if the project doesn't meet the improvement.
 This is because we don't yet know whether thread synchronization will be more time-consuming than the original version.
-In addition, the kernel launch in Celeritas may have to be changed, and this may take up a considerable amount of optimization time.
-It is sufficient to have a proof of concept that demonstrates that the enhancement is effective and deserves to be integrated.
-To measure it, the profiling must be done before and after each step of the project.
+In addition, the kernel launch in Celeritas may have to be changed, and this could take up a considerable amount of optimization time.
+For the bachelor thesis, it is sufficient to have a proof of concept that demonstrates that the enhancement is effective and deserves to be integrated.
+To measure the changes done during the internship, the profiler must be run before and after each step of the project.
 
 \section{Mandatory requirements}
 \label{spec:ch:goals:mandatory-requirements}
@@ -21,7 +22,7 @@ These requirements must be delivered at the end of the project.
 
 Before starting to work on the project, some things need to be learned and the goal here is to learn a new way of programming.
 To conclude this goal, no code will be produced except for exercises, but the important notions of \acrshort{gpu} programming with CUDA will be synthesized using cheat sheets.
-To take advantage of the delay between the beginning of the bachelor thesis and the beginning in the laboratory, this step will be done during this time.
+To take advantage of the delay between the beginning of the bachelor thesis and the beginning of the \acrshort{lbl} internship, this step will be done during this time.
 
 
 \subsection{Understand the Project}
@@ -37,12 +38,12 @@ This step will be done at the beginning of the project on-site.
 \subsection{Improve the Performance}
 \label{spec:ch:goals:mandatory-requirements:improve-the-performance}
 
-The main goal of the project is to improve the performance of the implementation of dormand Prince method~\cite{princeDormand}.
+The main goal of the project is to improve the performance of the implementation of Dormand-Prince method~\cite{princeDormand}.
 This last mandatory requirement is the core of the thesis and the most important part of the project and it will require the knowledge gained in the first two steps to improve the performance.
 
-To conclude this step, the code must compile, pass the unit test and a profiler must be run.
-The profile shows the difference between the two implementations of the DormandPrince method.
-As said in the general goal of the project, this task can be inefficient or too long to be finished, the goal is to have something that proves this modification must be integrated or not in the project.
+To conclude this step, the code must compile, pass the unit test, and a profiler must be run to show the difference between the new and the legacy implementation of the DormandPrince method.
+To achieve this goal, the profiles must show an improvement, but this could meet some difficulties to be realized and integrated into the project.
+In all cases, the failure of this goal doesn't mean the failure of the thesis if the documentation is correctly done and explains the results obtained and how is it possible or not to continue to this path.
 This step will be done after the first two steps and it will take the whole time left.
 
 
@@ -51,10 +52,10 @@ This step will be done after the first two steps and it will take the whole time
 
 These requirements are not mandatory but they could be a good addition to the project.
 
-\subsection{General architecture}
+\subsection{Portable Performance}
 \label{spec:ch:goals:optional-requirements:general-optimization}
 
-The purpose of Celeritas is to be run on all kinds of \acrshort{gpu} and even on machines with just have a \acrshort{cpu}.
+The purpose of Celeritas is to be run on all kinds of \acrshort{gpu} and even on machines with just a \acrshort{cpu}.
 During the optimization, the improvement will be checked on the Perlmutter~\cite{Perlmutter} which uses Nvidia A100 with the architecture Ampere~\cite{ampere} and some improvement can be only effective to this kind of \acrshort{gpu}.
 This goal is here to check if the improvement has a positive effect on other architectures and if it is not, to find a way to do that.
 To begin this step, the main goal needs to be finished.
