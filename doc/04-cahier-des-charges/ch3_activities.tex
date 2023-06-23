@@ -6,7 +6,7 @@ These tasks come directly from the goals and the planning is based on the activi
 
 All the tasks are not mentioning the documentation, but it's implicit that all the tasks will be reported in the final report.
 
-\section{Learn GPU Programming}
+\section{Learn GPU programming}
 \label{spec:ch:activities:learn-gpu-programming}
 
 This step will launch the project and it can be without any knowledge of the project Celeritas, the objective is to learn the fundamentals of GPU programming.
@@ -27,14 +27,14 @@ For each course, a cheat sheet will be produced to summarize the important notio
 Not every course will produce a new one, an old cheat sheet can be improved.
 
 
-\section{Understand the Project}
+\section{Understand the project}
 \label{spec:ch:activities:understand-the-project}
 
 The first step to do in the laboratory is to dive into the project to understand them.
 The discussion with the team and the customer will be important to catch the important points.
 
 
-\subsection{Compile the Code}
+\subsection{Compile the code}
 \label{spec:ch:activities:understand-the-project:compile-the-code}
 
 Celeritas is made to be run on \acrshort{hpc} and it comes with a new tool to build it.
@@ -42,14 +42,14 @@ This is important to understand the basis of Module~\cite{Module} and Spack~\cit
 This task is the first one to do in the laboratory.
 
 
-\subsection{Launch Job on Perlmutter}
+\subsection{Launch job on perlmutter}
 \label{spec:ch:activities:understand-the-project:launch-job-on-perlmutter}
 Perlmutter~\cite{Perlmutter} is the new \acrshort{hpc} of \acrshort{nersc}.
 To launch a job on this kind of machine, it's not a simple command as on a personal computer, this requires a script that includes some parameters and the command to launch the code.
 This step must be done to have an example that can be adapted to Celeritas.
 
 
-\subsection{Profile the Code}
+\subsection{Profile the code}
 \label{specspec:ch:activities:understand-the-project:profile-the-code}
 
 In order to measure the improvement, the code must be profiled on Perlmutter to know the performance's reference.
@@ -58,7 +58,7 @@ It is very important to know the limit of the code and announce some objectives 
 To close this second goal of the project, a profile must be recorded and analyzed.
 
 
-\subsection{Background the Project}
+\subsection{Background the project}
 \label{spec:ch:activities:understand-the-project:background-the-project}
 
 Aside from the other task, this one will be done to understand the background of the project.
@@ -82,11 +82,11 @@ The objective is also to follow the guideline of the project to make easier unde
 \subsection{Understand Runge-Kutta}
 \label{spec:ch:activities:improve-the-performance:understand-runge-kutta}
 
-As the optimization is on the Runge-Kutta method~\cite{Runge-Kutta-methods}, it's important to understand how it's working and how it's implemented in the code.
+As the optimization is on the Runge-Kutta method~\cite{Runge-Kutta-methods}, it's important to understand how it is working and how it's implemented in the code.
 Some analysis must be done to know where it's possible to improve the performance and how.
 
 
-\subsection{Implement the Optimization}
+\subsection{Implement the optimization}
 \label{spec:ch:activities:improve-the-performance:implement-the-optimization}
 
 Once all the analysis is done, it's time to implement a new version of the Runge-Kutta that uses all the advantages of the \acrshort{gpu}.

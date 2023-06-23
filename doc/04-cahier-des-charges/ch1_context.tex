@@ -18,7 +18,7 @@ Geant4 is a toolkit for the simulation of the path of particles through matter.
 It is used for many detector simulation applications in particle physics, medical physics, and beyond.
 The goal of the Celeritas project is to develop GPU-accelerated versions of the most computationally intensive kernels of Geant4.
 
-\section{Physics Simulation}
+\section{Physics simulation}
 \label{spec:ch:context:physics-simulation}
 
 Actually, the two main customers are \acrshort{cms} and \acrshort{atlas}, both made their experiments at the \acrfull{cern} with the \acrfull{lhc} and run their simulation with Geant4.
@@ -31,7 +31,7 @@ The \acrfull{atlas} experiment tracks the path of particles in the detector and 
 Figure \ref{spec:fig:context:physics-simulation:lhc} represents this experiment.
 \begin{figure}[ht]
     \centering
-    \includegraphics[width=0.9\textwidth]{05-resources/img/spec/experiment-atlas.excalidraw.png}
+    \includegraphics[width=0.85\textwidth]{05-resources/img/spec/experiment-atlas.excalidraw.png}
     \caption{ATLAS experiment at CERN~\cite{atlas-experiment}}
     \label{spec:fig:context:physics-simulation:lhc}
 \end{figure}
@@ -42,7 +42,7 @@ Figure \ref{spec:fig:context:physics-simulation:lhc} represents this experiment.
 
 The \acrfull{lbl} is a national laboratory in Berkeley, California.
 It is managed and operated by the University of California for the \acrfull{doe}.
-The lab is situated in the hills of Berkeley and it is composed of many buildings and has a beautiful view of the San Francisco Bay \ref{spec:fig:context:lbl:lab-view}.
+The lab is situated in the hills of Berkeley and it is composed of many buildings and has a beautiful view of the San Francisco Bay (see Fig.\ref{spec:fig:context:lbl:lab-view}).
 
 \begin{figure}[ht]
     \centering
@@ -61,5 +61,5 @@ The Physics and X-Ray Science Group, where the project is done, is situated in b
 Celeritas is already accelerated by \acrshort{gpu}s, however, the team wants to improve the performance to be able to reduce the time of a simulation.
 In the current version of the code, each particle track is processed in parallel by one GPU thread, with no collaboration between threads.
 GPU profiling of the code shows that execution time is dominated by two kernels.
-The first one is handled by the interaction with the detector geometry to know where in, 3D space, the particle is situated and during the profiling, the library used is vecGeom~\cite{VecGeom}.
-The second kernel, which will be the focus of this bachelor thesis project, is the computation of a differential equation using Dormant-Prince~\cite{princeDormand}.
+The first one is handled by the interaction with the detector geometry to know where, in 3D space, the particle is situated and during the profiling, the library used is vecGeom~\cite{VecGeom}.
+The second kernel, which will be the focus of this bachelor thesis project, is the computation of a differential equation using Dormand-Prince~\cite{princeDormand}.
