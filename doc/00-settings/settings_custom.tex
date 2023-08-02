@@ -9,3 +9,12 @@
 \renewcommand{\familydefault}{\sfdefault}
 
 \newcommand{\todo}[1]{\textcolor{red}{\textbf{TODO:} #1}}
+
+\newcommand{\image}[4]{
+    \begin{figure}[ht]
+        \centering
+        \includegraphics[width=#1\textwidth]{#2}
+        \caption{#3}
+        \label{#4}
+    \end{figure}
+}
