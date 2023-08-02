@@ -361,7 +361,7 @@ The different atomic operations are listed on the table \ref{tab:analyze:cuda:sy
 
 \begin{table}[ht]
     \centering
-    \begin{tabular}{|l|l|}
+    \begin{tabular}{|m{0.5\textwidth}|m{0.4\textwidth}|}
         \hline
         \textbf{Operation} & \textbf{Description} \\
         \hline
@@ -369,9 +369,9 @@ The different atomic operations are listed on the table \ref{tab:analyze:cuda:sy
         \hline
         \texttt{atomicMin/Max(addr, val)} & Set the minimum/maximum value \\
         \hline
-        \texttt{atomicInc/Dec(addr, val)} & \begin{tabular}[c]{@{}l@{}}Increment/Decrement an integer if\\ the new value will be from 0 to val\end{tabular}\\
+        \texttt{atomicInc/Dec(addr, val)} & Increment/Decrement an integer if the new value will be from 0 to val\\
         \hline
-        \texttt{atomicCAS(addr, compare, val)} & \begin{tabular}[c]{@{}l@{}}Swap value to addr if old is equal\\ to compare\end{tabular}\\
+        \texttt{atomicCAS(addr, compare, val)} & Swap value to addr if old is equal to compare\\
         \hline
         \texttt{atomicExch(addr, val)} & Swap value to addr \\
         \hline
@@ -398,7 +398,7 @@ Var is the name of the variable that will be pulled from the thread lane.
 
 \begin{table}[ht]
     \centering
-    \begin{tabular}{|l|l|}
+    \begin{tabular}{|m{0.5\textwidth}|m{0.4\textwidth}|}
         \hline
         \textbf{Operation} & \textbf{Description} \\
         \hline
@@ -427,7 +427,7 @@ synchronization functions.
 
 \begin{table}[ht]
     \centering
-    \begin{tabular}{|l|l|}
+    \begin{tabular}{|m{0.5\textwidth}|m{0.4\textwidth}|}
         \hline
         \textbf{Operation} & \textbf{Description} \\
         \hline
