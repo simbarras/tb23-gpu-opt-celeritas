@@ -1,0 +1,306 @@
+\chapter{Design}
+\label{ch:design}
+
+This bachelor thesis is focusing on optimizing the \acrlong{rkdp} algorithm
+in a context of \acrshort{gpu} computing.
+The design of the project amounts to find possible adaptations that could
+decrease the execution time of the algorithm.
+
+\section{Simulation}
+\label{ch:design:simulation}
+
+\acrshort{rkdp} is a sequential function and as it is described in Chapter~\ref{ch:analyze:gpu:use-cases},
+\acrshort{gpu}s or parallelization is not so useful in this case.
+This simulation aims at estimating to what extent using multithreading could
+potentially improve the running time.
+
+\subsection{RKDP algorithm}
+\label{ch:design:simulation:rkdp}
+
+This method has nine stages and is a fifth-order accurate Runge Kutta method.
+The first six stages are used to compute the end state, the seventh stage is used
+in the seventh state and the last two stages are used to compute the error and the
+middle state.
+
+\subsection{Principle}
+\label{ch:design:simulation:principle}
+
+In the implementation of the \acrshort{rkdp}, we can identify different types of
+code.
+The first category must is the code that must be executed sequentially and has no option
+to be distributed on multiple threads.
+The second group of concern is the code that concerns the computation of several
+expressions that must be assigned before the first reference to the
+corresponding variables.
+The last one is a vector multiplication that has a specified place in the code
+but could be split into parallel substeps.
+
+Figure \ref{fig:design:simulation:principle:code-type} shows how the
+fourth step is computed and which part of the code is from which type.
+The red part is the dependent code, that has to be executed sequentially.
+It is the computation of the intermediate state kx using the equation.
+The blue part is the independent code that just has to be executed before its
+first use. This is the computation of the coefficients with the step's size.
+The green part is the vector multiplication that can be executed in parallel.
+Each line has to be computed sequentially but each involves a vector
+multiplication which could be multithreaded.
+Code~\ref{code:design:simulation:principle:axpy} shows the implementation of the
+method
+
+\image{0.5}{05-resources/img/design/simulation-principle.excalidraw.png}
+        {Example illustrating which part of the code is from which type}
+        {fig:design:simulation:principle:code-type}
+
+\begin{code}
+    \captionof{listing}{Implementation of axpy}
+    \label{code:design:simulation:principle:axpy}
+    \begin{minted}{c++}
+//! \file celeritas/field/Types.hh
+/*!
+* Perform y <- ax + y for OdeState.
+*/
+inline CELER_FUNCTION void axpy(real_type a, OdeState const& x, OdeState* y)
+{
+    axpy(a, x.pos, &y->pos);
+    axpy(a, x.mom, &y->mom);
+}
+//----------------------------------------------------------------------------//
+//! \file celeritas/ext/Convert.geant.hh
+/*!
+ * Define y += a * x .
+ */
+inline void axpy(double a, G4ThreeVector const& x, G4ThreeVector* y)
+{
+    CELER_EXPECT(y);
+    for (int i = 0; i < 3; ++i)
+    {
+        (*y)[i] = a * x[i] + (*y)[i];
+    }
+}
+    \end{minted}
+\end{code}
+
+The principle is to record when what type of code is executed to have an idea of
+the proportion of time spent on each type of code.
+Code \ref{code:design:simulation:principle:code} shows the same step as
+Figure \ref{fig:design:simulation:principle:code-type} but with the
+logger to record the type of code, and written in Python.
+
+\begin{code}
+    \captionof{listing}{Fourth step in Python for the simulation}
+    \label{code:design:simulation:principle:code}
+    \begin{minted}{python}
+# Fourth step
+logger(4, TaskType.DEPENDENT)
+k4 = equation(*state)
+state = beg_state
+logger(4, TaskType.INDEPENDENT)
+coef_a41 = step * a41
+coef_a42 = step * a42
+coef_a43 = step * a43
+coef_a44 = step * a44
+logger(4, TaskType.VECTOR_MULT)
+axpy(coef_a41, k1, state)
+axpy(coef_a42, k2, state)
+axpy(coef_a43, k3, state)
+axpy(coef_a44, k4, state)
+    \end{minted}
+\end{code}
+
+The logger is an object that creates an event with a type and a timestamp.
+This object is used during the runtime but also after to display the results and
+to compute the better thread workload using a \texttt{SchedulingTree} described
+in the next section~\ref{ch:design:simulation:scheduling}.
+
+\subsection{SchedulingTree}
+\label{ch:design:simulation:scheduling}
+
+The \texttt{SchedulingTree} has been developed to compute the ideal start time
+for a given task with the best wanted time.
+
+To choose which task will be executed on which thread, we ask every thread,
+which are represented by a \texttt{SchedulingTree}, to know which thread could
+start the thread with the best time.
+When the best thread is found, the task is added to it.
+
+The implementation is inspired by an interval tree.
+The tasks are the leaf and every node has the same start as the left child and
+the same end as the right child.
+This allows the code to know if a task could potentially overlap an existing one.
+To get the result, the leaves have to be read from the left to the right.
+The tasks are only stocked in the leaves and the node is only used to know if a
+new task could potentially overlap an existing one.
+Figure~\ref{fig:design:simulation:scheduling:schema} shows an example of a
+\texttt{SchedulingTree} with three tasks.
+The node help to have a quick overview if a task could overlap and existing or
+not.
+
+\image{0.5}{05-resources/img/design/schedulingTree.excalidraw.png}
+        {Example of a \texttt{SchedulingTree} with three tasks}
+        {fig:design:simulation:scheduling:schema}
+
+The \acrshort{api} of the \texttt{SchedulingTree} is shown in Table~\ref{tab:design:simulation:scheduling:api}.
+The implementation is not user-bad-usage-proof because indicating an invalidate
+start time in the method \texttt{add} will result in the overlapping of some
+tasks.
+
+\begin{table}[ht]
+    \centering
+    \begin{tabular}{|m{0.45\textwidth}|m{0.45\textwidth}|}
+        \hline
+        \textbf{Method} & \textbf{Description} \\
+        \hline
+        \texttt{schedule(int wanted\_start, Task task) -> int} & Return the earliest start possible after the wanted start given in the parameter \\
+        \hline
+        \texttt{add(int start, Task task) -> void} & Add a task at the time indicated in the parameter \\
+        \hline
+        \texttt{get\_schedule() -> Task[]} & Return the array of the tasks sorted by start time \\
+        \hline
+    \end{tabular}
+    \captionof{table}{\acrshort{api} of the \texttt{SchedulingTree}}
+    \label{tab:design:simulation:scheduling:api}
+\end{table}
+
+\subsection{Results}
+\label{ch:design:simulation:results}
+
+Those results are obtained by recording the data from a Python script running
+the \acrshort{rkdp} with the chaotic Lorenz attractor equation.
+
+The second graph of Figure \ref{fig:design:simulation:results} shows
+how the time is spent in each step.
+This version is without some dead time that appears when recording the events.
+It is important to have this version because when we are simulating the
+distribution on the threads, we are not taking into account the dead time.
+
+The graphs three and four are showing what each thread is doing.
+We can see that pre-computing the coefficients with the three threads when the
+first one is computing the equation seems to be a good idea.
+Also, distributing the vector multiplication could help a lot to decrease the
+execution time.
+
+The last graph is like the first two ones but with the new repartition of the
+tasks.
+
+To conclude, this simulation shows that we can expect an improvement in dividing
+the time up by two.
+However, this simulation is not taking the time due to the thread
+synchronization and it is run in a different context than the real implementation.
+
+To implement this solution, the workload has to be divided between the threads.
+According to the result, the best workload would be something like Figure~\ref{fig:design:simulation:result:thread-workload}.
+Where a controller is computing the intermediate state using the equation and the
+other threads are computing the vector multiplication.
+The role of the threads has been slightly adapted from graph number three and
+four of Figure~\ref{fig:design:simulation:results}.
+
+\image{0.5}{05-resources/img/design/thread-workload.excalidraw.png}
+        {Best theoretical distribution of the workload between the threads}
+        {fig:design:simulation:result:thread-workload}
+
+\image{1}{05-resources/img/design/simulation-result.png}
+        {Results of the simulation}
+        {fig:design:simulation:results}
+
+
+\section{Shared memory management}
+\label{ch:design:shared}
+
+The allocation of the shared memory is a part of some implementations of the
+new \acrshort{rkdp}.
+To use this memory, the developer must deal with constraints about the size and
+the alignment of the data.
+
+For each track, the shared must contain eight \texttt{OdeState} and one
+\texttt{FieldStepperResult}. The \texttt{OdeState}s are the seven intermediate
+states (kx) and the last one is the state that is updated during the
+whole method (along\_state).
+If the coefficients are pre-computed using multiple threads, they also have to be
+stored in the shared memory.
+Table~\ref{tab:design:shared-component} shows the size of each objects for a
+track.
+
+\begin{table}[ht]
+    \centering
+    \begin{tabular}{|l|l|l|}
+        \hline
+        \textbf{Variable} & \textbf{Type} & \textbf{Size (bytes)} \\
+        \hline
+        ks & OdeState[7] & 45 * 7 = 315 \\
+        \hline
+        along\_state & OdeState & 45 \\
+        \hline
+        result & FieldStepperResult & 144 \\
+        \hline
+        (coef) & double[32] & 8 * 32 = 256 \\
+        \hline
+        \multicolumn{2}{|l|}{Total} & 528 (784) \\
+        \hline
+    \end{tabular}
+    \captionof{table}{Objects stored in the shared memory for each track}
+    \label{tab:design:shared-component}
+\end{table}
+
+According to Table~\ref{tab:design:shared-component}, the block size
+has a maximum dimension of 372 threads for the version without precomputed (Equation~\ref{eq:design:shared:dimension-without-coef})
+and 248 threads for the version with precomputed coefficients (Equation~\ref{eq:design:shared:dimension-with-coef}).
+
+\begin{equation}
+    \frac{49152\frac{B}{Block} }{528 \frac{B}{Track} } * 4 \frac{Thread}{Track} = 93\frac{Track}{Block} * 4 \frac{Thread}{Track} = \textbf{372}\frac{Thread}{Block}
+    \label{eq:design:shared:dimension-without-coef}
+\end{equation}
+
+\begin{equation}
+    \frac{49152\frac{B}{Block} }{784 \frac{B}{Track} } * 4 \frac{Thread}{Track} = 62\frac{Track}{Block} * 4 \frac{Thread}{Track} = \textbf{248}\frac{Thread}{Block}
+    \label{eq:design:shared:dimension-with-coef}
+\end{equation}
+
+However, the shared memory size is not the only constraint.
+The shared memory can be allocated statically or dynamically.
+In this project, the number of tracks is not known at compile time so it is
+mandatory to use a dynamic allocation.
+The easiest way to do this is to have an array of different types of objects and
+use the thread id as an index to access the data as shown in Figure~\ref{fig:design:shared:memory-organization}.
+
+\image{1}{05-resources/img/design/memory-management.excalidraw.png}
+        {Shared memory management}
+        {fig:design:shared:memory-organization}
+
+Assuming that the shared memory is a big array of void pointers and knowing the
+number of tracks of the block, it is possible to create aligned pointers to the
+different objects.
+The operator \texttt{[x]} on a pointer is returning the pointer to the address
+\texttt{ptr + x * sizeof(type)}. So using \texttt{[n]} is giving the first
+address of the next array.
+
+
+\section{Number of iterations}
+\label{ch:design:iterations}
+
+As shown in the Chapter~\ref{ch:analyze:atlas:implementation} and Figure~\ref{fig:analyze:atlas:implementation:iteration-hit},
+more than 80\% of the time concerns just one iteration.
+However, this does not take into account the time spent to get these results.
+For example, if a chord needs 100 iterations, it has taken 100 times more time
+than a chord that needs only one iteration.
+To have a better view of the effort that takes an iteration, the data have been
+multiplied by the number of iterations.
+The result is shown in Figure~\ref{fig:design:iterations:iteration-hit}.
+
+\image{1}{05-resources/img/design/time-iteration-hit.png}
+        {Time before an iteration is hit multiplied by the number of iterations to
+        have an idea of the time spent in each iteration.}
+        {fig:design:iterations:iteration-hit}
+
+As we can see, the first iteration is still the most used.
+However, there is a better distribution and we can't assume that doing only one
+iteration during the test is representative of the real use of the algorithm.
+
+Based on the heuristic rule of the 80/20, a good number of iterations
+will be a number that represents 80\% of the time.
+Figure~\ref{fig:design:iterations:cumulative-time} shows that this number
+is 40 iterations.
+
+\image{0.5}{05-resources/img/design/cumulative-time-iteration.png}
+        {Cumulative percentage of the time spent in the iterations with a marker
+        at 80\%.}
+        {fig:design:iterations:cumulative-time}
