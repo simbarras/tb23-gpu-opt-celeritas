@@ -12,7 +12,7 @@ The goal is to improve the performance of the project Celeritas, which is a part
 \section{Celeritas}
 \label{spec:ch:context:celeritas}
 
-The project Celeritas~\cite{Celeritas-Project} is a particle physics simulation software that can be integrated with Geant4~\cite{Geant4} as a plugin library.
+The project Celeritas~\cite{Celeritas-Project} is a particle physics simulation software that can be integrated with Geant4~\cite{geant4} as a plugin library.
 It can also be used as a standalone application, with limited functionality for now.
 Geant4 is a toolkit for the simulation of the path of particles through matter.
 It is used for many detector simulation applications in particle physics, medical physics, and beyond.
@@ -25,7 +25,7 @@ Actually, the two main customers are \acrshort{cms} and \acrshort{atlas}, both m
 They are both using Geant4 and they didn't have committed to using Celeritas beyond an initial evaluation.
 Detector simulation is used to validate and calibrate the algorithms used to estimate the properties of the primary particles from the observed detector data.
 The main goal of the thesis will be to optimize a GPU-accelerated version of the Prince Dormand algorithm~\cite{princeDormand}, a Runge-Kutta solver~\cite{Runge-Kutta-methods} for the differential equations governing the trajectory of particles in a non-uniform magnetic field.
-This work will improve the project Celeritas~\cite{Celeritas-Project} which may replace Geant4~\cite{Geant4} in the future.
+This work will improve the project Celeritas~\cite{Celeritas-Project} which may replace Geant4~\cite{geant4} in the future.
 
 The \acrfull{atlas} experiment tracks the path of particles in the detector and produces coordinates points where particles traverse the sensors.
 Figure \ref{spec:fig:context:physics-simulation:lhc} represents this experiment.

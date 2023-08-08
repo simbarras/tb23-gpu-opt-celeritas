@@ -1,4 +1,100 @@
 \chapter{Conclusion}
 \label{ch:conclusion}
 
-\todo{TODO}
+This chapter is concluding the thesis, my stay at the \acrshort{lbl} and my
+studies at the \acrshort{heia}.
+The two first conclusions are objective and concerning the project and the thesis.
+The third one is personal and concerns my experiments during the three last
+years with a focus on the last 3 months.
+
+
+\section{Thesis conclusion}
+\label{ch:conclusion:thesis}
+
+This chapter compares the goals defined Section~\ref{ch:introduction:objectives}.
+
+First of all, the goal to learn \acrshort{gpu} programming has been achieved.
+The chapter about that in the documentation was not written as a tutorial but
+as a reminder for the people that know how to deal with it.
+The knowledge gained during this goal has been used during the whole project
+and it has been improved too.
+
+Then, to improve the project, a dive into what has been necessary.
+However, with a bit of distance, I think too much time has been spent here and
+the gained knowledge or facilities has not been used during the third objective.
+
+The study of \acrshort{rkdp} has helped a lot to do two implementations of a
+distributed \acrshort{rkdp}.
+The two implements have been demonstrated that they are not improving the times for
+a large amount of data but I think this project has been very interesting and
+some things can be kept.
+
+\section{Project conclusion}
+\label{ch:conclusion:project}
+
+Even if the main goal was to do a Bachelor's thesis to validate the Bachelor of
+Simon Barras, the project was also a need for the Celeritas project.
+
+The implementation made to improve the runtime of the \acrshort{rkdp} have some
+really good performance for a small number of particles.
+These implementations are not useful at the point that Celeritas needs to simulate
+a large number of particles.
+The reason for that is the \acrshort{gpu}s have not enough \acrshort{sm} to run
+all the threads in parallel.
+As using four times more threads per track, the threads have to wait to have a
+\acrshort{sm} available to run.
+
+The only way to be able to use these implementations is to have a \acrshort{gpu}
+with more \acrshort{cuda} cores.
+One of the possible solutions is to wait for the next generation of \acrshort{gpu} or
+to find a way to distribute the vector multiplication with fewer threads.
+
+To resume, the implementations are a Ferrari and a Pagani that we want to use to
+do some off-road.
+
+\section{Personal conclusion}
+\label{ch:conclusion:personal}
+
+This project was a great opportunity for me to learn a lot of things.
+
+I discover a new country and I practice my English.
+It was the first time that I was so far from my home for more than one month.
+The fact that I was alone was a challenge for me, but I found a new way to enjoy
+my life.
+This experience forces me too to be more independent and to deal with a very
+difficult administrative system that is the American one.
+
+Concerning life in the \acrshort{lbl}, I was very lucky to be in a team with
+people from all over the world.
+The coffee time was a great moment to share our culture and learn more about
+the other.
+This place is very special too because it is situated near the Silicon Valley
+and there are a lot of people with a high level of education.
+The events organized in place are very interesting to discover or learn more
+about a lot of subjects.
+I have seen that Machine Learning and Quantum Computing are very
+popular.
+I would really enjoy coming back to California to work after my career.
+
+About my project, I enjoy discovering a new way of programming.
+I really love to deal with the constraint and the advantages of the \acrshort{gpu}.
+I personally think that the experiments done will help the Celeritas project to
+have a better understanding of how \acrshort{rkdp} could be improved.
+I found that my project organization was good and even with the distance, I was
+able to keep my supervisors and my expert informed about the progress of my work.
+If I have to do it again, I will probably try to start my documentation earlier
+but I think it is a good document to trace my work.
+
+To conclude, I would say that I am very happy to be graduated (This year I hope)
+at the \acrshort{heia}.
+It was not easy every day, I remember my first year in German and the evaluation
+of trigonometry where I understand that "Dreieck" means triangle.
+All the calls that I made with Nicolas Terreaux to finish our projects and all
+the coffee we drink to stay awake.
+I have some really good experiences like Eurobot in spring 2022 where we finish
+at the highest ranking that the school has ever done and, of course, this
+amazing experience that gives me the wish to discover even more about the world and
+the computer science.
+To finish, I would like to thank all the people that I meet during my studies.
+All the teachers, the staff and, of course, all the students and I hope that I
+will have the luck to work with some of them in the future.
