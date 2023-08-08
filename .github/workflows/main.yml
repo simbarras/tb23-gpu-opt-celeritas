@@ -18,6 +18,8 @@ jobs:
         run: git remote add mirror https://simon.barras:${{ secrets.GITLAB_TOKEN }}@gitlab.forge.hefr.ch/frederic.bapst/tb23-gpu-opt-celeritas.git
       - name: Unshallow
         run: git fetch --unshallow
+      - name: git config
+        run: git config lfs.allowincompletepush true
       - name: Push to mirror
         run: git push mirror $(basename ${{ github.ref }}) --force
 

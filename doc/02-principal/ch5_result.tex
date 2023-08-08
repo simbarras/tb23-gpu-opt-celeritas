@@ -1,8 +1,234 @@
 \chapter{Result}
 \label{ch:result}
 
-\section{Comparaison}
-\label{ch:result:comparaison}
+The result of this bachelor thesis is available on the pull request~\cite{pull-request-barras}.
+As explained in the chapter~\ref{ch:implementation}, five different
+implementations have been made and tested but only two of them have been kept.
+The implementation with the global memory and the shared memory have shown the
+best results but the tests can be described as "shy" because the number of
+tracks is low.
+On the pull request, there are two implementations and the tests have been
+developed to compare the two implementations.
 
-\section{problem encountered}
-\label{ch:result:problem}
+To compare the three implementations (old, global memory and shared memory), the
+Table~\ref{tab:result:comparison:parameters} shows the parameters used for the
+comparison.
+The number of states is not defined because it is the parameters that are changed
+to compare the three implementations.
+The number of iterations has been set to 40 according to this
+graph~\ref{fig:design:iterations:cumulative-time}.
+
+\begin{table}[ht]
+    \centering
+    \begin{tabular}{|l|l|}
+        \hline
+        \textbf{Parameter} & \textbf{Value} \\
+        \hline
+        Number of states & X \\
+        \hline
+        Number of threads per track & old: 1, new: 4 \\
+        \hline
+        Initial step size & 10000 \\
+        \hline
+        Delta chord & 1e-4 \\
+        \hline
+        Number of iterations & 40 \\
+        \hline
+    \end{tabular}
+    \caption{Parameters used for the comparison}
+    \label{tab:result:comparison:parameters}
+\end{table}
+
+\section{Block limit}
+\label{ch:result:comparison:block}
+
+The number of threads per block is limited by the \acrshort{gpu} architecture.
+Most of the \acrshort{gpu} have a limit of 1024 threads per block but that is
+not the only limit.
+The number of registers used per thread during the execution or the shared memory
+can get down the limitation of the number of threads per block.
+This limitation cannot just be applied like this because the implementation
+requires that the threads that work on the same track are in the same warp.
+To do that, the number of threads per block must be a multiple of 32.
+Table~\ref{tab:result:comparison:block} shows the maximum number of threads per
+block for the three implementations.
+The number of threads per block for the shared memory implementation is limited
+by the shared memory and it is described in Chapter~\ref{ch:design:shared}.
+
+\begin{table}[ht]
+    \centering
+    \begin{tabular}{|l|l|l|l|l|}
+        \hline
+        \textbf{Implementation} & \textbf{Threads} & \textbf{Warps} & \textbf{Effective threads} & \textbf{Tracks} \\
+        \hline
+        Old & 772 & 24 & 768 & 768 \\
+        \hline
+        Global memory & 772 & 24 & 768 & 192 \\
+        \hline
+        Shared memory & 372 & 11 & 352 & 88 \\
+        \hline
+    \end{tabular}
+    \caption{Max number of threads per block}
+    \label{tab:result:comparison:block}
+\end{table}
+
+The runtime for the three implementations using one block is shown in
+Figure~\ref{fig:result:comparison:one-block}.
+Overall, the performance is good because the speedup is from 135\% to 160\%.
+
+\image{0.85}{05-resources/img/result/one-block.png}
+{Runtime for one block}
+{fig:result:comparison:one-block}
+
+\section{Runtime}
+\label{ch:result:comparison:runtime}
+
+The goal of this comparison is to prove that the new implementation is faster
+than the old one for the same context as a classic Celeritas runtime.
+To do that, the number of tracks will be highly increased to show if the
+performance at one million tracks is better than the old implementation.
+
+The experiments shown in Figure~\ref{fig:result:comparison:multi-blocks} has run the
+three implementations with a number of tracks from 100 to 276'900 every 100
+tracks.
+It has been made on Zeus with an Nvidia A6000~\cite{nvidia-a6000}.
+
+\subsection{Performance}
+\label{ch:result:comparison:performance}
+
+The result for the new implementations starts with a better performance than the
+old one but the cost to add more tracks is higher than the old implementation.
+With around 15'000 tracks, the old implementation becomes faster than the new ones.
+
+An interesting observation is that when the time of the new implementations
+becomes slower, the performance does a "jump".
+Just by adding 100 tracks, the runtime increase by 25 milliseconds which is
+around 140\% of the runtime at this moment.
+This jump is also visible on the old implementation with the same proportion but
+with more tracks.
+The repairs in Figure~\ref{fig:result:comparison:multi-blocks} are showing that
+this jump appears when the number of threads is around 65'000.
+Another interesting observation is that this step is continuing with less and
+less difference.
+
+\subsection{GPU limits}
+\label{ch:result:comparison:gpu}
+
+To explain these jump, Fiugure~\ref{fig:result:comparison:runtime-thread}
+displays the runtime with the number of threads and not the number of tracks.
+It shows that the old implementation is slower but it is slower for a number of
+threads and for this same number, the old implementation is tracking four times
+more particles.
+The frequency has been set to 64'512 threads which are corresponding to 84 blocks
+for the old and the global memory implementation.
+
+\image{0.65}{05-resources/img/result/runtime-thread.png}
+{Runtime on the number of threads}
+{fig:result:comparison:runtime-thread}
+
+This number of 64'512 threads is not a coincidence because it is a multiple of
+10752 which is the number of \acrshort{cuda} cores on the Nvidia A6000~\cite{nvidia-a6000}.
+In fact, this is 6 times the number of \acrshort{cuda} cores but this factor is
+arbitrary.
+It depends on the requested resources of the kernel so this factor change for
+every kernel.
+
+\subsection{Profiling}
+\label{ch:result:comparison:profiling}
+
+The hypothesis of the \acrshort{gpu} limit is confirmed by the profiling of the
+three implementations.
+Nvidia Nsight Compute~\cite{nsight-compute} has been used to profile the three
+implementations using the test \texttt{compare\_occupancy}.
+
+First of all, the graphs on Figure~\ref{fig:result:comparison:profiling:limitation},
+represent how to optimize the kernel occupancy.
+Graph number 2 shows that the highest number of threads per block is 1024
+for the \acrshort{gpu} Nvidia A6000~\cite{nvidia-a6000} but the limitation of
+the kernel is 768.
+The second graph shows the maximum size of the shared memory per block which is
+48 KB.
+
+\image{1}{05-resources/img/result/profile-limitation.png}
+{Graphs that show the limitation of the GPU}
+{fig:result:comparison:profiling:limitation}
+
+To confirm the hypothesis of the waves per \acrshort{sm}, the table on
+Figure~\ref{fig:result:comparison:profiling:wave} show the kernel configuration
+and the relevant information is the number of waves per \acrshort{sm}.
+As the kernel time is also given by the tool, it confirms that every jump is
+relating to a number of waves that is not an integer number.
+
+\image{1}{05-resources/img/result/profile-wave.png}
+{Graphs that show the waves per SM}
+{fig:result:comparison:profiling:wave}
+
+To read the profile~\cite{nsight-profile}, use Table~\ref{tab:result:comparison:profile} to know
+what the context of the kernel launched.
+The context is the number of tracks and the implementation used.
+
+\begin{table}[ht]
+    \centering
+    \resizebox{\textwidth}{!}{
+    \begin{tabular}{|l|l|l|l|l|l|l|l|l|l|l|}
+        \cline{1-3} \cline{5-7} \cline{9-11}
+        \textbf{\#} & \textbf{Implementation} & \textbf{Tracks} & & \textbf{\#} & \textbf{Implementation} & \textbf{Tracks} & & \textbf{\#} & \textbf{Implementation} & \textbf{Tracks} \\ \cline{1-3} \cline{5-7} \cline{9-11}
+        0   & Old            & 14500    & & 1   & Global memory & 14500   & & 2     & Shared memory & 14500 \\ \cline{1-3} \cline{5-7} \cline{9-11}
+        3   & Old            & 14600    & & 4   & Global memory & 14600   & & 5     & Shared memory & 14600 \\ \cline{1-3} \cline{5-7} \cline{9-11}
+        6   & Old            & 14700    & & 7   & Global memory & 14700   & & 8     & Shared memory & 14700 \\ \cline{1-3} \cline{5-7} \cline{9-11}
+        9   & Old            & 14800    & & 10  & Global memory & 14800   & & 11    & Shared memory & 14800 \\ \cline{1-3} \cline{5-7} \cline{9-11}
+        12  & Old            & 14900    & & 13  & Global memory & 14900   & & 14    & Shared memory & 14900 \\ \cline{1-3} \cline{5-7} \cline{9-11}
+        15  & Old            & 15000    & & 16  & Global memory & 15000   & & 17    & Shared memory & 15000 \\ \cline{1-3} \cline{5-7} \cline{9-11}
+        18  & Old            & 15100    & & 19  & Global memory & 15100   & & 20    & Shared memory & 15100 \\ \cline{1-3} \cline{5-7} \cline{9-11}
+        21  & Old            & 15200    & & 22  & Global memory & 15200   & & 23    & Shared memory & 15200 \\ \cline{1-3} \cline{5-7} \cline{9-11}
+        24  & Old            & 15300    & & 25  & Global memory & 15300   & & 26    & Shared memory & 15300 \\ \cline{1-3} \cline{5-7} \cline{9-11}
+        27  & Old            & 15400    & & 28  & Global memory & 15400   & & 29    & Shared memory & 15400 \\ \cline{1-3} \cline{5-7} \cline{9-11}
+        30  & Old            & 15500    & & 31  & Global memory & 15500   & & 32    & Shared memory & 15500 \\ \cline{1-3} \cline{5-7} \cline{9-11}
+        33  & Old            & 15600    & & 34  & Global memory & 15600   & & 35    & Shared memory & 15600 \\ \cline{1-3} \cline{5-7} \cline{9-11}
+        36  & Old            & 15700    & & 37  & Global memory & 15700   & & 38    & Shared memory & 15700 \\ \cline{1-3} \cline{5-7} \cline{9-11}
+        39  & Old            & 15800    & & 40  & Global memory & 15800   & & 41    & Shared memory & 15800 \\ \cline{1-3} \cline{5-7} \cline{9-11}
+        42  & Old            & 15900    & & 43  & Global memory & 15900   & & 44    & Shared memory & 15900 \\ \cline{1-3} \cline{5-7} \cline{9-11}
+        45  & Old            & 16000    & & 46  & Global memory & 16000   & & 47    & Shared memory & 16000 \\ \cline{1-3} \cline{5-7} \cline{9-11}
+        48  & Old            & 16100    & & 49  & Global memory & 16100   & & 50    & Shared memory & 16100 \\ \cline{1-3} \cline{5-7} \cline{9-11}
+        51  & Old            & 16200    & & 52  & Global memory & 16200   & & 53    & Shared memory & 16200 \\ \cline{1-3} \cline{5-7} \cline{9-11}
+        54  & Old            & 16300    & & 55  & Global memory & 16300   & & 56    & Shared memory & 16300 \\ \cline{1-3} \cline{5-7} \cline{9-11}
+        57  & Old            & 16400    & & 58  & Global memory & 16400   & & 59    & Shared memory & 16400 \\ \cline{1-3} \cline{5-7} \cline{9-11}
+        60  & Old            & 16500    & & 61  & Global memory & 16500   & & 62    & Shared memory & 16500 \\ \cline{1-3} \cline{5-7} \cline{9-11}
+        63  & Old            & 64000    & & 64  & Global memory & 64000   & & 65    & Shared memory & 64000 \\ \cline{1-3} \cline{5-7} \cline{9-11}
+        66  & Old            & 64100    & & 67  & Global memory & 64100   & & 68    & Shared memory & 64100 \\ \cline{1-3} \cline{5-7} \cline{9-11}
+        69  & Old            & 64200    & & 70  & Global memory & 64200   & & 71    & Shared memory & 64200 \\ \cline{1-3} \cline{5-7} \cline{9-11}
+        72  & Old            & 64300    & & 73  & Global memory & 64300   & & 74    & Shared memory & 64300 \\ \cline{1-3} \cline{5-7} \cline{9-11}
+        75  & Old            & 64400    & & 76  & Global memory & 64400   & & 77    & Shared memory & 64400 \\ \cline{1-3} \cline{5-7} \cline{9-11}
+        78  & Old            & 64500    & & 79  & Global memory & 64500   & & 80    & Shared memory & 64500 \\ \cline{1-3} \cline{5-7} \cline{9-11}
+        81  & Old            & 64600    & & 82  & Global memory & 64600   & & 83    & Shared memory & 64600 \\ \cline{1-3} \cline{5-7} \cline{9-11}
+        84  & Old            & 64700    & & 85  & Global memory & 64700   & & 86    & Shared memory & 64700 \\ \cline{1-3} \cline{5-7} \cline{9-11}
+        87  & Old            & 64800    & & 88  & Global memory & 64800   & & 89    & Shared memory & 64800 \\ \cline{1-3} \cline{5-7} \cline{9-11}
+        90  & Old            & 64900    & & 91  & Global memory & 64900   & & 92    & Shared memory & 64900 \\ \cline{1-3} \cline{5-7} \cline{9-11}
+        93  & Old            & 65000    & & 94  & Global memory & 65000   & & 95    & Shared memory & 65000 \\ \cline{1-3} \cline{5-7} \cline{9-11}
+    \end{tabular}
+    }
+    \caption{Profile id to context}
+    \label{tab:result:comparison:profile}
+\end{table}
+
+\image{1}{05-resources/img/result/multi-block.png}
+{Runtime for a large number of tracks}
+{fig:result:comparison:multi-blocks}
+
+\section{Validation}
+\label{ch:result:validation}
+
+The two implementations have been checked using the tool \texttt{mem-check} and
+\texttt{compute-sanitizer} from Nvidia.
+Those tools are respectively here to prevent some memory errors and race
+condition.
+In this bachelor thesis, it is important to test those two things because there
+is more than one thread that is working with the same data and the shared memory
+is initialized with managed out-of-bound pointers.
+
+These two tools aren't detecting any error on the two implementations.
+
+The static analysis from a tool is not enough to prove that the implementation is
+correct.
+That is why there is a pull request~\cite{pull-request-barras} that is reviewed
+by the Celeritas team.

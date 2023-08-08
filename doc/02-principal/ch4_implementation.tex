@@ -1,40 +1,867 @@
 \chapter{Implementation}
 \label{ch:implementation}
 
+The implementation of this bachelor thesis is not done from scratch, it is the
+improving the Celeritas project.
+My contribution is detailed in a pull request available here~\cite{pull-request-barras}.
+
 
 \section{Project initialization}
 \label{ch:implementation:initialization}
 
+Before actively developing the project, it is necessary to set up the
+environment, compile the project and run it to ensure that everything is
+working as expected.
+
 \subsection{Set up the environment}
 \label{ch:implementation:initialization:environment}
+
+This project is designed to be run on \acrshort{hpc}.
+This means that the tools are slightly different from a regular project.
+Those systems are designed to be used by multiple users at the same time.
+Therefore, they have to be adapted to any usage and provide the needed tools
+or libraries that the users want.
+To help the users, the system provides a module system or an advanced package
+manager like \texttt{spack}~\cite{Spack}.
+
+
+\subsubsection{Module system}
+\label{ch:implementation:initialization:environment:module}
+
+Module~\cite{Module} is a tool that allows the user to load or unload some tools
+or libraries.
+It is a simple way to manage the environment and it must be installed and
+managed by the system administrator.
+
+Table~\ref{tab:implementation:initialization:environment:module:commands} shows
+some commands that can be used with the module system.
+They are basic but they are sufficient in most cases.
+
+\begin{table}[ht]
+    \centering
+    \begin{tabular}{|l|l|}
+        \hline
+        \textbf{Command} & \textbf{Description} \\
+        \hline
+        \texttt{module avail} & List all available module \\
+        \hline
+        \texttt{module list} & List all loaded module \\
+        \hline
+        \texttt{module load <module>} & Load a module \\
+        \hline
+        \texttt{module unload <module>} & Unload a module \\
+        \hline
+    \end{tabular}
+    \caption{List of useful modules commands}
+    \label{tab:implementation:initialization:environment:module:commands}
+\end{table}
+
+The command can be added to the profile to load a module when a session is open,
+for example, \texttt{module load git}.
+
+
+\subsubsection{Spack}
+\label{ch:implementation:initialization:environment:spack}
+
+Spack~\cite{Spack} is an advanced package manager designed for \acrshort{hpc} applications.
+This tool can be installed by the user and it helps to install some project like
+Celeritas with their dependencies.
+Like module, spack allows the user to work on many different projects with the
+system of the environment.
+
+Install this tool, it requires to clone the repository and source it.
+As sourcing a script is shell session scoped, it is recommended to add it to the
+profile.
+Code~\ref{code:implementation:initialization:environment:spack:install} shows
+
+\begin{code}
+    \captionof{listing}{Download spack and source it}
+    \label{code:implementation:initialization:environment:spack:install}
+    \begin{minted}{bash}
+git clone\
+    --depth=100\
+    --branch=releases/v0.20 https://github.com/spack/spack.git\
+    ~/spack
+
+echo ". ~/spack/share/spack/setup-env.sh" >> ~/.bashrc
+    \end{minted}
+\end{code}
+
+To reload the profile, use the command \texttt{source ~/.bashrc}.
+
+\begin{table}[ht]
+    \centering
+    \begin{tabular}{|m{0.45\textwidth}|m{0.45\textwidth}|}
+        \hline
+        \textbf{Command} & \textbf{Description} \\
+        \hline
+        \texttt{spack env create <name> <path>} & Create a new environment based
+            on a YAML file that describes the environment \\
+        \hline
+        \texttt{spack env activate <name>} & Activate an environment \\
+        \hline
+        \texttt{spack env deactivate} & Deactivate the current environment \\
+        \hline
+        \texttt{spack env list} & List all environments \\
+        \hline
+        \texttt{spack env remove <name>} & Remove an environment \\
+        \hline
+        \texttt{spack concretize -f} & Show what will be installed with which option.
+            This command is very useful to check that spack will install
+            Celeritas with the \acrshort{gpu} acceleration \\
+        \hline
+        \texttt{spack install} & Install the environment \\
+        \hline
+        \texttt{spack find} & List all installed packages \\
+        \hline
+        \texttt{spack config add package:all:variants:"+/-option"} & Add a variant to all packages \\
+        \hline
+    \end{tabular}
+    \caption{List of useful spack commands}
+    \label{tab:implementation:initialization:environment:spack:commands}
+\end{table}
+
+
+\subsubsection{Celeritas environment}
+\label{ch:implementation:initialization:environment:celeritas}
+
+As shown in the previous sections, the environment is something important and
+it needs a bit of a configuration to have the right one.
+Code \ref{code:implementation:initialization:environment:celeritas:create} is
+the profile used to develop the project on the host Zeus.
+It assumes that the environment "celeritas" has already been created with spack.
+
+\begin{code}
+    \captionof{listing}{Profile to work with Celeritas}
+    \label{code:implementation:initialization:environment:celeritas:create}
+    \begin{minted}{bash}
+# Load spack
+. ~/spack/share/spack/setup-env.sh
+# Load the right compiler (Zeus)
+module unload gcc
+source /cvmfs/sft.cern.ch/lcg/contrib/gcc/11.3.0/x86_64-centos7-gcc11-opt/setup.sh
+# Activate the environment (Optional)
+spack env activate celeritas
+    \end{minted}
+\end{code}
+
 
 \subsection{Compile the project}
 \label{ch:implementation:initialization:compile}
 
+Celeritas is a complex project with multiple builds possible.
+The easiest way to compile it is to use the script provided by the team here:
+\texttt{./scripts/build.sh}.
+This script will automatically read the host to load the right compiler, the
+right modules and the right Cmake profile.
+In the end, this script will build all the applications issued from this project
+and run the tests.
+This script is loading the Cmake preset and his name must be given as an
+argument.
+Code~\ref{code:implementation:initialization:compile:presets} lists all the
+available presets.
+
+\begin{code}
+    \captionof{listing}{Cmake preset for Celeritas}
+    \label{code:implementation:initialization:compile:presets}
+    \begin{minted}{bash}
+Sourcing environment script at scripts/env/zeus.sh
+loading cuda/11.8.0
+Usage: scripts/build.sh PRESET [config_args...]
+Available configure preses:
+
+    "base"        - Zeus default options (GCC, debug)
+    "reldeb-novg" - Zeus release with debug symbols and Orange
+    "reldeb"      - Zeus release with debug symbols
+    "ndebug-novg" - Zeus release with Orange
+    "ndebug"      - Zeus release
+    "default"     - Automatic options (debug with tests)
+    "full"        - Full
+    "minimal"     - Minimal
+    \end{minted}
+\end{code}
+
+If this is the first time the project is built, some pre-steps are required.
+To start, the right compiler must be loaded.
+Then, the spack environment must be created.
+Code~\ref{code:implementation:initialization:compile:pre-steps} shows those two
+parts.
+
+\begin{code}
+    \captionof{listing}{Pre-steps to compile Celeritas}
+    \label{code:implementation:initialization:compile:pre-steps}
+    \begin{minted}{bash}
+## Load the right compiler (Zeus) ##
+module load cmake
+module unload gcc
+source /cvmfs/sft.cern.ch/lcg/contrib/gcc/11.3.0/x86_64-centos7-gcc11-opt/setup.sh
+
+## Create the environment ##
+# Configure the project to be used with CUDA
+spack config add packages:all:variants:"+cuda cuda_arch=80"
+spack env create celeritas scripts/spack.yaml
+spack activate celeritas
+    \end{minted}
+\end{code}
+
+After this step, it just needs to install the environment using
+\texttt{spack install} (can be parallelized with \texttt{spack install \& spack install \& ...})
+but this step takes a couple of hours.
+To avoid doing that multiple times, it is recommended to use the command
+\texttt{spack concretize -f} to check what environment will be installed.
+The important thing is to have \texttt{vecgeom} compiled with \texttt{gcc 11.3}
+and have the variant \texttt{cuda} enabled with the architecture \texttt{80} for
+Zeus and \texttt{70} for Perlmutter.
+During this bachelor thesis, the version of Geant4~\cite{geant4} used was the
+11.1 or more.
+Those requirements are shown in Code~\ref{code:implementation:initialization:compile:concretize}.
+
+\begin{code}
+    \captionof{listing}{Check of the environement}
+    \label{code:implementation:initialization:compile:concretize}
+    \begin{minted}{bash}
+vecgeom@1.2.2%gcc@11.3.0+cuda+gdml~geant4~ipo~root+shared
+    build_system=cmake build_type=Release cuda_arch=80 cxxstd=17
+    generator=make arch=linux-centos7-cascadelake
+
+geant4@11.1.1%gcc@11.3.0~ipo~motif~opengl~qt~tbb+threads~vecgeom~vtk~x11
+    build_system=cmake build_type=Release cxxstd=17 generator=make
+    arch=linux-centos7-cascadelake
+    \end{minted}
+\end{code}
+
+
+\subsection{Run a job on Perlmutter}
+\label{ch:implementation:initialization:perlmutter}
+
+Perlmutter~\cite{Perlmutter} is the supercomputer of the \acrshort{nersc}.
+It is a very powerful machine with a lot of \acrshort{gpu} and \acrshort{cpu}.
+To run a job on this machine, it is not like a regular computer.
+The user must submit a job to the scheduler and wait for the job to be executed.
+To submit a job, the user must create a script that will be executed by the
+scheduler.
+Code~\ref{code:implementation:initialization:perlmutter:job} shows an example
+of a job script.
+This script is a \texttt{sbahs} and it defines the required resources for the
+job.
+
+\begin{code}
+    \captionof{listing}{Job script for Perlmutter}
+    \label{code:implementation:initialization:perlmutter:job}
+    \begin{minted}{bash}
+#!/bin/bash
+#SBATCH -q debug
+#SBATCH -N 1
+#SBATCH -C cpu
+#SBATCH -t 00:10:00
+#SBATCH -J my_job
+
+./serial-hello
+srun -n 64 -c 4 --cpu-bind=cores ./mpi-hello
+    \end{minted}
+\end{code}
+
+The arguments are well described in the official documentation
+(\url{https://docs.nersc.gov/jobs/#commonly-used-options}).
+
+To launch a job on Perlmutter, use the following checklist to ensure to don't
+forget anything:
+
+\begin{enumerate}
+    \item Load modules needed with the command \texttt{module load <module>}
+    \item Build the application that will be executed
+    \item Write the job script as shown in Code~\ref{code:implementation:initialization:perlmutter:job}
+    \item Run the script with the command \texttt{sbatch <script>}
+    \item Monitor the status of the job with the command \texttt{squeue -u <username>}
+          Possibility of using \texttt{watch} to refresh the status automatically.
+    \item Prompt the result or the error from the file \texttt{slurm-<jobid>.out/.err}
+\end{enumerate}
+
 \subsection{Run and profile the project}
 \label{ch:implementation:initialization:run}
 
+The tests are automatically launched after the build.
+However, we can want to run the application to do a demonstration or to
+monitor the runtime.
+In this thesis case, the application has to be profiled to know if the changes
+improved the performance.
 
+Celeritas needs complex input files to run and as the development has been done
+on the Zeus, a computer with \acrshort{gpu}s in the \acrshort{lbl}.
+The easiest way to run \texttt{celer-sim}, the application to simulate the
+path of the particles is to use a Python script.
+This script has been adapted into this Pull request~\cite{regression-pull-request}.
+
+The script \texttt{run-problems.py} is a Python script that builds the input
+files and run the application.
+To launch this script, there is a bash script to set up the environment.
+
+This step has taken a lot of time at the beginning of the project to have a
+profile that aims to be used to compare with the final version.
+Actually, Celeritas is a wide project and it is not easy to integrate some
+changes, even more, if it must change the way the kernel is launched.
+At the end of the profile, no profile has been done from the entire application
+but just from the test.
 
 \section{Test framework}
 \label{ch:implementation:test}
+
+As Celeritas is a complex project, is it too long to update the way the track is
+launched to use many threads for a thread.
+
+To avoid this problem, the implementation is used and compared in tests.
+These tests are launched automatically after the build but if it is possible to
+only launch the wanted test file.
+Code~\ref{code:implementation:test:launch} shows how to build the project
+without launching the tests and then launching the file that contains the tests
+about the performance of \acrshort{rkdp}.
+
+\begin{code}
+    \captionof{listing}{Launch a test}
+    \label{code:implementation:test:launch}
+    \begin{minted}{bash}
+./scripts/build.sh base --no-test
+./build/test/celeritas_field_DormandPrinceStepper
+    \end{minted}
+\end{code}
+
+It is possible to use the test file with \texttt{ncu} to profile the kernels.
+
+\subsection{Launching RKDP}
+\label{ch:implementation:test:launching}
+
+There are three test files, \texttt{DormandPrinceStepper.test.hh},
+\texttt{DormandPrinceStepper.test.cc} and \texttt{DormandPrinceStepper.test.cu}
+(files available in the pull request~\cite{pull-request-barras}).
+The first one is the header file, it contains the helper methods and all the
+constants used in the tests.
+The second file is the file that contains the tests and the last one is the
+implementation of the kernels.
+
+The method \texttt{simulate\_multi\_next\_chord} of the file
+\texttt{DormandPrinceStepper.test.cu} is the method to test implementation.
+This method requires the number of threads per track, the number of states and if
+it has to use the shared memory with a boolean.
+These parameters help to choose the implementation to run.
+Table~\ref{tab:implementation:test:launching:implementation} explains how the
+implementation is chosen.
+
+\begin{table}[ht]
+    \centering
+    \begin{tabular}{|l|l|l|}
+        \hline
+        \textbf{number\_threads} & \textbf{use\_shared} & \textbf{Implementation} \\
+        \hline
+        1 & false & Old implementation \\
+        \hline
+        4 & false & Global memory \\
+        \hline
+        4 & true & Shared memory \\
+        \hline
+    \end{tabular}
+    \caption{Implementation chosen in function of the parameters}
+    \label{tab:implementation:test:launching:implementation}
+\end{table}
+
+Figure~\ref{fig:implementation:test:launching:launch-kernel} describes the steps
+of the method \texttt{simulate\_multi\_next\_chord}.
+Points 2, 3 and 10 have more variables to manage if the implementation is the
+one with global memory.
+The compute of the properties changes for every implementation because the
+number of tracks per block is different.
+
+\image{1}{05-resources/img/implementation/launch-kernel.excalidraw.png}
+{Activity diagram to show how a kernel that tests an implementation is launched}
+{fig:implementation:test:launching:launch-kernel}
+
+To know the execution time of the kernel, \acrshort{cuda} provides an \acrshort{api}
+to create and record events.
+These objects are used to measure the time between two events.
+Before recording the end event, the kernel has to be synchronized to ensure
+that the kernel is finished.
+
+\subsection{Tests}
+\label{ch:implementation:test:tests}
+
+There are three types of tests in the file \texttt{DormandPrinceStepper.test.cc}.
+The first one is here to check that the results are correct.
+It launches the old implementation and compares all results with the ones from a
+new implementation.
+The name of the test start \texttt{result\_} and the suffix is the name of the
+implementation.
+The second type of test is here to check that the new implementation is at
+At least as fast as the old one.
+The test has \texttt{time\_} as a prefix and the suffix is the name of the
+implementation.
+The last type is here to compare the implementation between them.
+This kind of test is disabled with the prefix \texttt{DISABLED\_} because
+they contain no assertion.
+It also contains the part \texttt{compare} in the name to be easily identified.
+Code~\ref{code:implementation:test:tests:compare} shows the result of the tests
+and the name of the tests.
+
+\begin{code}
+    \captionof{listing}{Results of the tests}
+    \label{code:implementation:test:tests:compare}
+    \begin{minted}{text}
+[==========] Running 4 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 4 tests from DormandPrinceStepperTest
+[ RUN      ] DormandPrinceStepperTest.result_global_memory
+[       OK ] DormandPrinceStepperTest.result_global_memory (74 ms)
+[ RUN      ] DormandPrinceStepperTest.time_global_memory
+[       OK ] DormandPrinceStepperTest.time_global_memory (67 ms)
+[ RUN      ] DormandPrinceStepperTest.result_hared_memory
+[       OK ] DormandPrinceStepperTest.result_hared_memory (42 ms)
+[ RUN      ] DormandPrinceStepperTest.time_shared_memory
+[       OK ] DormandPrinceStepperTest.time_shared_memory (67 ms)
+[ DISABLED ] DormandPrinceStepperTest.DISABLED_compare_time_one_by_one
+[----------] 4 tests from DormandPrinceStepperTest (253 ms total)
+
+[----------] Global test environment tear-down
+[==========] 4 tests from 1 test suite ran. (253 ms total)
+[  PASSED  ] 4 tests.
+    \end{minted}
+\end{code}
 
 
 
 \section{Implementation of the RKDP algorithm}
 \label{ch:implementation:rkdp}
 
+All the implementation can be found in the fork~\cite{fork-celeritas} of
+Celeritas on the profile of Simon Barras.
+The commits related to an implementation have been tagged with the prefix
+\texttt{rkdp-opti-v0.x} and the number of the implementation.
+This version has been tested with the framework described in the previous
+section~\ref{ch:implementation:test}.
+
+All the tests have been done on the host Zeus and the parameters used are
+described in Table~\ref{tab:implementation:rkdp:parameters}.
+The parameters are the same for all the implementations to have a better
+comparison.
+The only difference is the number of threads per track for the old implementation
+and the new ones.
+Each implementation is tested with one, forty and one hundred iterations to see
+the impact of the number of iterations on the performance.
+
+
+\begin{table}[ht]
+    \centering
+    \begin{tabular}{|l|l|}
+        \hline
+        \textbf{Parameter} & \textbf{Value} \\
+        \hline
+        Number of states & 5 \\
+        \hline
+        Number of threads per track & old: 1, new: 4 \\
+        \hline
+        Initial step size & 10000 \\
+        \hline
+        Delta chord & 1e-4 \\
+        \hline
+        Number of iterations & 1, 40 and 100 \\
+        \hline
+    \end{tabular}
+    \caption{Parameter used to run the tests}
+    \label{tab:implementation:rkdp:parameters}
+\end{table}
+
 \subsection{Global memory and vector multiplication}
 \label{ch:implementation:rkdp:global-vecmult}
+
+This first version implemented is a simple implementation that uses the global
+memory and vector multiplication.
+This implementation is tagged with \texttt{rkdp-opti-v0.1}.
+
+To implement a version with more than one thread per track, the threads must
+have indicators to know which state they have to compute and which role the
+thread has. These indicators are the \texttt{id} which represents the track and
+the \texttt{index} which is an integer from 1 to the number of threads per track.
+The thread that computes the same track has to wait for the others so it is
+important to have a \texttt{mask} to be used to synchronize the threads.
+Code~\ref{code:implementation:rkdp:global-vecmult:compute-indicator} shows how
+the indicators are computed, the \texttt{number\_threads} is the number of
+threads per track.
+How the role of each thread is affected is also shown in the code.
+This way of computing the indicators is the effect of having the threads of the
+same track in the same warp.
+
+\begin{code}
+    \captionof{listing}{How the \texttt{id}, \texttt{index} and \texttt{mask} are computed}
+    \label{code:implementation:rkdp:global-vecmult:compute-indicator}
+    \begin{minted}{c++}
+int id = (threadIdx.x + blockIdx.x * blockDim.x) / number_threads;
+int index = (threadIdx.x + blockIdx.x * blockDim.x) % number_threads;
+constexpr int warp_size = 32;
+int mask = (number_threads * number_threads - 1)
+            << ((id * number_threads) % warp_size);
+if (index == 0)
+{
+    run_sequential(step, beg_state, id, mask, ks, along_state, result);
+}
+else
+{
+    run_aside(step, beg_state, id, index, mask, ks, along_state, result);
+}
+return *result;
+    \end{minted}
+\end{code}
+
+This implementation needs to have the intermediate states (\texttt{ks}) and the
+state that is updated during the function (\texttt{along\_state}).
+To have the same pointer for all the threads, these variables must be passed
+as a parameter to the kernel.
+
+This simple version only needs the to use the instruction \texttt{\_\_syncwarp(mask)}
+to synchronize the threads.
+This instruction surrounds the vector multiplication and is doubled between each
+step.
+Code~\ref{code:implementation:rkdp:global-vecmult:syncwarp} shows the new
+implementation of Code~\ref{code:implementation:rkdp:global-vecmult:legacy}.
+
+\begin{code}
+    \captionof{listing}{Usage of the instruction \texttt{\_\_syncwarp(mask)}}
+    \label{code:implementation:rkdp:global-vecmult:syncwarp}
+    \begin{minted}{c++}
+// Main thread
+// First step
+ks[0] = calc_rhs_(beg_state);
+*along_state = beg_state;
+__syncwarp(mask);
+__syncwarp(mask);
+//----------------------------------------------------------------------------//
+// Aside threads
+__syncwarp(mask);
+along_state->pos[index - 1] = step * axx[coef_counter]
+                                * ks[j].pos[index - 1]
+                                + along_state->pos[index - 1];
+along_state->mom[index - 1] = step * axx[coef_counter]
+                                * ks[j].mom[index - 1]
+                                + along_state->mom[index - 1];
+__syncwarp(mask);
+    \end{minted}
+\end{code}
+
+\begin{code}
+    \captionof{listing}{Legacy implementation of the \acrshort{rkdp} algorithm}
+    \label{code:implementation:rkdp:global-vecmult:legacy}
+    \begin{minted}{c++}
+// First step
+OdeState k1 = calc_rhs_(beg_state);
+OdeState state = beg_state;
+for (int i = 0; i < 3; ++i)
+{
+    state.pos[i] = a11 * step * k1.pos[i] + state.pos[i];
+}
+for (int i = 0; i < 3; ++i)
+{
+    state.mom[i] = a11 * step * k1.mom[i] + state.mom[i];
+}
+    \end{minted}
+\end{code}
+
+Figure~\ref{fig:implementation:rkdp:global-vecmult:sequence} shows the sequence
+of the communication between the threads.
+
+\image{0.5}{05-resources/img/implementation/rkdp-v1.excalidraw.png}
+{Sequence diagram to show the first implementation of \acrshort{rkdp}}
+{fig:implementation:rkdp:global-vecmult:sequence}
+
+With the parameters described in Table~\ref{tab:implementation:rkdp:parameters},
+Table~\ref{tab:implementation:rkdp:global-vecmult:results} shows the results
+of the tests for each number of iterations.
+
+\begin{table}[ht]
+    \centering
+    \begin{tabular}{|l|l|l|l|}
+        \hline
+        \textbf{Number of iterations} & \textbf{Old (ms)} & \textbf{Current (ms)} & \textbf{Speedup} \\
+        \hline
+        1 & 1.07725 & 0.67904 & 158.64\% \\
+        \hline
+        40 & 41.6737 & 26.071 & 159.85\% \\
+        \hline
+        100 & 104.387 & 65.8627 & 158.49\% \\
+        \hline
+    \end{tabular}
+    \caption{Results of the tests for the global memory and vector multiplication}
+    \label{tab:implementation:rkdp:global-vecmult:results}
+\end{table}
 
 \subsection{Global memory, vector multiplication and pre-computation}
 \label{ch:implementation:rkdp:global-vecmult-precomp}
 
+This implementation is based on the previous one~\ref{ch:implementation:rkdp:global-vecmult}.
+The tag is \texttt{rkdp-opti-v0.2} and the difference is the pre-computation of
+the coefficients.
+
+All the indicators, the synchronization and any else that is related to the
+vector multiplication is the same as the previous implementation.
+
+The pre-computation is done by every worker thread for every coefficient.
+The coefficients are constants but they are scaled by the step size.
+Figure~\ref{fig:implementation:rkdp:global-vecmult-precomp:sequence} shows
+this difference with the task in blue.
+
+\image{0.5}{05-resources/img/implementation/rkdp-v2.excalidraw.png}
+{Sequence diagram to show the second implementation of \acrshort{rkdp}}
+{fig:implementation:rkdp:global-vecmult-precomp:sequence}
+
+This version is slightly slower than the previous one as shown in
+Table~\ref{tab:implementation:rkdp:global-vecmult-precomp:results}.
+This version can be improved by distributing the pre-computation between the
+threads but this version implies more effort and the version with the shared
+memory should be a way with more potential.
+
+\begin{table}[ht]
+    \centering
+    \begin{tabular}{|l|l|l|l|}
+        \hline
+        \textbf{Number of iterations} & \textbf{Old (ms)} & \textbf{Current (ms)} & \textbf{Speedup} \\
+        \hline
+        1 & 1.07725 & 0.693248 & 155.39\% \\
+        \hline
+        40 & 41.6768 & 26.3782 & 158.00\% \\
+        \hline
+        100 & 104.389 & 66.4351 & 157.13\% \\
+        \hline
+    \end{tabular}
+    \caption{Results of the tests for the global memory, vector multiplication and pre-computation}
+    \label{tab:implementation:rkdp:global-vecmult-precomp:results}
+\end{table}
+
 \subsection{Shared memory and vector multiplication}
 \label{ch:implementation:rkdp:shared-vecmult}
+
+This implementation is based on the first one~\ref{ch:implementation:rkdp:global-vecmult}
+and it is tagged with \texttt{rkdp-opti-v0.3}.
+
+As explained in the design about the shared memory~\ref{ch:design:shared},
+it is used as a space to store the objects that will be used by the threads.
+Code~\ref{code:implementation:rkdp:shared-vecmult:shared-memory} shows how the
+intermediate states, the along state and the result are stored and declared.
+
+\begin{code}
+    \captionof{listing}{Declaration of the shared memory}
+    \label{code:implementation:rkdp:shared-vecmult:shared-memory}
+    \begin{minted}{c++}
+extern __shared__ void* shared_memory[];
+OdeState* shared_ks = (OdeState*)shared_memory;
+OdeState* shared_along_state
+    = reinterpret_cast<OdeState*>(&shared_ks[7 * number_states]);
+FieldStepperResult* shared_result = reinterpret_cast<FieldStepperResult*>(
+    &shared_along_state[number_states]);
+    \end{minted}
+\end{code}
+
+The implementation of \texttt{run\_sequential} and \texttt{run\_aside} is
+slightly the same as the version with the global memory as long as the call of
+this method is a bit different as shown in
+Code~\ref{code:implementation:rkdp:shared-vecmult:call}.
+
+\begin{code}
+    \captionof{listing}{Call of the method \texttt{run\_sequential} and \texttt{run\_aside}}
+    \label{code:implementation:rkdp:shared-vecmult:call}
+    \begin{minted}{c++}
+if (index == 0)
+{
+    run_sequential(step,
+                    beg_state,
+                    id,
+                    mask,
+                    &shared_ks[7 * id],
+                    &shared_along_state[id],
+                    &shared_result[id]);
+}
+else
+{
+    run_aside(step,
+                beg_state,
+                id,
+                index,
+                mask,
+                &shared_ks[7 * id],
+                &shared_along_state[id],
+                &shared_result[id]);
+}
+    \end{minted}
+\end{code}
+
+The call of the kernel is a bit different because the shared memory is
+dynamically allocated, the size to be given as the third property of the
+kernel.
+The size per track is described in Chapter~\ref{ch:design:shared}.
+
+Figure~\ref{fig:implementation:rkdp:shared-vecmult:sequence} shows that all
+threads have to instantiate the shared memory with the indicators.
+This time is probably longer than the version without the shared memory.
+
+\image{0.5}{05-resources/img/implementation/rkdp-v3.excalidraw.png}
+{Sequence diagram to show the third implementation of \acrshort{rkdp}}
+{fig:implementation:rkdp:shared-vecmult:sequence}
+
+The result is slightly similar to the first implementation.
+Table~\ref{tab:implementation:rkdp:shared-vecmult:results} shows the results
+for the three numbers of iterations.
+
+\begin{table}[ht]
+    \centering
+    \begin{tabular}{|l|l|l|l|}
+        \hline
+        \textbf{Number of iterations} & \textbf{Old (ms)} & \textbf{Current (ms)} & \textbf{Speedup} \\
+        \hline
+        1 & 1.07315 & 0.677952 & 158.29\% \\
+        \hline
+        40 & 41.5314 & 26.0813 & 159.24\% \\
+        \hline
+        100 & 104.065 & 65.8852 & 157.95\% \\
+        \hline
+    \end{tabular}
+    \caption{Results of the tests for the shared memory and vector multiplication}
+    \label{tab:implementation:rkdp:shared-vecmult:results}
+\end{table}
 
 \subsection{Shared memory, vector multiplication and pre-computation}
 \label{ch:implementation:rkdp:shared-vecmult-precomp}
 
+As mentioned in the hypothesis of the simulation~\ref{ch:design:simulation}, the
+pre-computation of the coefficients can improve the performance.
+The implementation number 2~\ref{ch:implementation:rkdp:global-vecmult-precomp},
+as shown that if all the worker threads precompute all the coefficients, the
+performance is worse.
+The goal of this implementation which is tagged with \texttt{rkdp-opti-v0.4} is
+to show that if the pre-computation is distributed is it possible to have a
+better performance.
+
+Figure~\ref{fig:implementation:rkdp:shared-vecmult-precomp:sequence} shows that
+the worker threads have to declare more shared variables to store the
+precomputed coefficients.
+Declaring the coefficients in the shared memory increase its size of it and it
+affects the number of threads per block.
+
+\image{0.5}{05-resources/img/implementation/rkdp-v4.excalidraw.png}
+{Sequence diagram to show the fourth implementation of \acrshort{rkdp}}
+{fig:implementation:rkdp:shared-vecmult-precomp:sequence}
+
+The result in Table~\ref{tab:implementation:rkdp:shared-vecmult-pre-computed:results}
+are slightly similar to the second implementation.
+The pre-computation seems to take too much time before the first vector
+multiplication.
+
+\begin{table}[ht]
+    \centering
+    \begin{tabular}{|l|l|l|l|}
+        \hline
+        \textbf{Number of iterations} & \textbf{Old (ms)} & \textbf{Current (ms)} & \textbf{Speedup} \\
+        \hline
+        1 & 1.07213 & 0.708608 & 151.30\% \\
+        \hline
+        40 & 41.5304 & 26.5051 & 156.69\% \\
+        \hline
+        100 & 104.02 & 66.4965 & 156.43\% \\
+        \hline
+    \end{tabular}
+    \caption{Results of the tests for the shared memory, vector multiplication and pre-computation}
+    \label{tab:implementation:rkdp:shared-vecmult-pre-computed:results}
+\end{table}
+
+
 \subsection{Shared memory, vector multiplication and pre-computation optimized}
 \label{ch:implementation:rkdp:shared-vecmult-precomp-opti}
+
+The hypothesis behind this implementation is that the pre-computation of the
+coefficients take more time than the first step of the sequential part.
+This implementation is tagged \texttt{rkdp-opti-v0.5} and the pre-computation is
+distributed between the different vector multiplication.
+
+As there are three workers threads, the compute three coefficients take the same
+time as only compute one or two coefficients.
+Table~\ref{tab:implementation:rkdp:shared-vecmult-precomp-opti:coefficients}
+shows that just by completing three coefficients before a vector multiplication
+is enough to have enough coefficients for the five first steps.
+Before step 6, the worker threads have to compute another three next
+coefficients and before the steps eight and nine, the worker threads have to
+compute the last coefficients.
+Step 7 is not shown here because the coefficients are not used.
+
+\begin{table}[ht]
+    \centering
+    \begin{tabular}{|l|l|l|}
+        \hline
+        \textbf{Step} & \textbf{Pre-computed} & \textbf{Needed} \\
+        \hline
+        1 & 3 & 1 \\
+        \hline
+        2 & 6 & 3 \\
+        \hline
+        3 & 9 & 6 \\
+        \hline
+        4 & 12 & 10 \\
+        \hline
+        5 & 15 & 15 \\
+        \hline
+        6 & 21 & 21 \\
+        \hline
+        8 & 32 & 32 \\
+        \hline
+        9 & 32 & 32 \\
+        \hline
+    \end{tabular}
+    \caption{Results of the tests for the shared memory and vector multiplication}
+    \label{tab:implementation:rkdp:shared-vecmult-precomp-opti:coefficients}
+\end{table}
+
+Figure~\ref{fig:implementation:rkdp:shared-vecmult-precomp-opti:sequence}
+illustrate the sequence of the tasks made by the threads.
+This is very similar as the previous implementation~\ref{ch:implementation:rkdp:shared-vecmult-precomp}
+but the pre-computation is distributed between the vector multiplication.
+
+\image{0.5}{05-resources/img/implementation/rkdp-v5.excalidraw.png}
+{Sequence diagram to show the fifth implementation of \acrshort{rkdp}}
+{fig:implementation:rkdp:shared-vecmult-precomp-opti:sequence}
+
+Surprisingly, the results in Table~\ref{tab:implementation:rkdp:shared-vecmult-precomp-opti:results}
+are not much better than the previous implementation.
+The hypothesis is not correct and it shows that the pre-computation is not
+benefit for the performance.
+This is probably because the time to store the value and read it after is longer
+then the time to compute the coefficients and pass them directly to the methods.
+
+\begin{table}[ht]
+    \centering
+    \begin{tabular}{|l|l|l|l|}
+        \hline
+        \textbf{Number of iterations} & \textbf{Old (ms)} & \textbf{Current (ms)} & \textbf{Speedup} \\
+        \hline
+        1 & 1.07315 & 0.712704 & 150.57\% \\
+        \hline
+        40 & 41.5283 & 26.5257 & 156.56\% \\
+        \hline
+        100 & 104.018 & 66.646 & 156.08\% \\
+        \hline
+    \end{tabular}
+    \caption{Results of the tests for the shared memory, vector multiplication and the optimized pre-computation}
+    \label{tab:implementation:rkdp:shared-vecmult-precomp-opti:results}
+\end{table}
+
+\subsection{Conclusion}
+\label{ch:implementation:rkdp:conclusion}
+
+To conclude the hypothesis opened by the simulation~\ref{ch:design:simulation},
+the Figure~\ref{fig:implementation:rkdp:conclusion} shows the speedup of the
+different implementations.
+
+\image{0.75}{05-resources/img/implementation/conclusion.png}
+{Graph to show the speedup of the different implementations}
+{fig:implementation:rkdp:conclusion}
+
+The conclusion that appears from this graph is that the vector multiplication
+provides some good results.
+Now, the pre-computation seems to slow down the performance even if the
+implementation is optimized.
+The experiments do not show that the usage of the shared memory is better than
+the global memory.
+To know which implementation is better, further experiments are made using the
+implementation number one (global memory and vector multiplication) and the
+implementation number 3 (shared memory and vector multiplication).
