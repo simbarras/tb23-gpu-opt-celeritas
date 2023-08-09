@@ -3,9 +3,9 @@
 
 During this chapter, the project is analyzed to understand the context, the
 goals and challenges.
-This project is focused on the optimization of the particle's tracking using
+This project is focused on the optimization of the particle tracking using
 \acrshort{gpu}s.
-\acrshort{gpu}'s programming is something totally new for a bachelor's
+\acrshort{gpu}'s programming is something totally new for a Bachelor's
 student at the \acrshort{heia}.
 Celeritas is a project that is actively developed and it requires time to
 understand the code and the architecture.
@@ -19,14 +19,15 @@ It is known by the gamer community because it is used to render the graphics of
 the games and a good graphic card increases the frames per second displayed.
 However, in the professional world, the \acrshort{gpu} are becoming more and
 more popular because they are more efficient than the \acrshort{cpu} for
-parallel computing and managing a large amount of data.
+parallel computing and managing a large amount of data without spending much
+energy.
 
 
 \subsection{Use cases}
 \label{ch:analyze:gpu:use-cases}
 
-In most cases, \acrshort{cpu}s are more efficient than \acrshort{gpu}s
-which is why they are a mandatory component of a computer.
+In most cases, \acrshort{cpu}s are faster than \acrshort{gpu}s to deal with
+independent tasks which is why they are a mandatory component of a computer.
 \acrshort{cpu}s have a high frequency and they are optimized to execute one
 task at a time with a high efficiency.
 On the other hand, \acrshort{gpu}s have a lower frequency and they are optimized
@@ -51,7 +52,7 @@ particles of a simulation.
 \subsection{Architecture}
 \label{ch:analyze:gpu:architecture}
 
-The table \ref{tab:analyze:gpu:architecture:instruction-data} shows the
+Table~\ref{tab:analyze:gpu:architecture:instruction-data} shows the
 different types of processors.
 The capabilities to work with one or multiple data and instructions are defined
 by the architecture of the processor.
@@ -73,6 +74,12 @@ The table \ref{tab:analyze:gpu:architecture:instruction-data} does not show the
 frequency of the processor is an important factor for performance.
 This explains why the \acrshort{cpu} is more efficient than the \acrshort{gpu}
 for most of the cases.
+To be fair, things are a bit more complicated and there is more than just
+four types of processors and one processor can be classified into multiple
+categories.
+Concerning the \acrshort{gpu} and according to the \acrshort{cuda}
+documentation~\cite{cuda-programming-simt}, it is possible to program with the
+\acrlong{simt} model.
 
 To deal with the \acrshort{simd} architecture, the \acrshort{gpu} executes
 physically the same instruction on multiple data using multiple threads as shown
@@ -87,6 +94,7 @@ multiple \acrfull{cuda} cores.
 The \acrshort{cuda} cores are the processors that execute the instructions.
 The \acrshort{sm} is the unit that manages the threads and the memory.
 Figure \ref{fig:analyze:gpu:architecture:sm} shows the architecture of a \acrshort{sm}.
+Ampere~\cite{ampere} \acrshort{sm}s are split into four warps schedulers.
 
 \image{0.65}{05-resources/img/analyze/sm.png}
 {\acrshort{sm} architecture~\cite{nvidia-a100-architecture}}
@@ -125,7 +133,7 @@ The code that runs on a \acrshort{gpu} is in a function called "kernel" and it
 is executed by every thread.
 Those kernels are defined with the keyword \texttt{\_\_global\_\_} and they are called
 with the function \texttt{kernel\_name<<<number\_of\_blocks, number\_of\_threads>>>()}.
-The code \ref{code:analyze:cuda:develop:basis:kernel} shows a basic kernel
+The code \ref{code:analyze:cuda:basis:kernel} shows a basic kernel
 launch with 2 blocks of 3 threads which means that the kernel code will be
 executed 6 times.
 
@@ -148,15 +156,15 @@ int main() {
 \subsection{Memory}
 \label{ch:analyze:cuda:memory}
 
-As the \acrshort{gpu} is a separate processor, it has its own memory system.
-As a developer we have to manage three different spaces where data can be stored:
+As the \acrshort{gpu} is a separate processor, it has its own memory space.
+As a developer, we have to manage three different spaces where data can be stored:
 \begin{itemize}
     \item Host memory (RAM)
     \item Device memory (DRAM)
     \item Shared memory
 \end{itemize}
 
-Every space becomes with its properties and using the right one is important to
+Every space comes with its properties and using the right one is important to
 have a good performance.
 Figure \ref{fig:analyze:cuda:memory:architecture} shows the physical
 organization of the memory on a \acrshort{gpu}.
@@ -181,11 +189,18 @@ The device memory is the memory that is used by the \acrshort{gpu} to execute
 the kernel and it is comparable to a heap and a stack memory.
 This place contains the local variables of a thread, the global variables and
 the constant memory.
+Ideally, the local variables stay in the registers which are closer to the core
+and this is faster.
+If the kernel needs too much memory, \acrshort{cuda} will store the data in the
+global memory.
+Most of the time, the registers are enough.
 This memory is accessible by all the threads of a grid and the data can be
 transferred from/to the host memory via specific statements on the host code.
 
-The arguments passed to a kernel can only be 64 bits long so the object must be
-passed by reference and the value must be copied in the device memory.
+The arguments passed to a kernel can be 32'764 Bytes long but the object cannot
+be passed by reference.
+To pass a dynamic object, it must be given with his pointer and the value must
+be copied into the device's memory.
 To get the result, the data must be copied back to the host memory.
 The code \ref{code:analyze:cuda:memory:device:copy-read} shows how to launch a
 kernel with objects and integers as arguments.
@@ -248,23 +263,31 @@ int main() {
     \end{minted}
 \end{code}
 
-Constant expressions and methods that will be used on the device must have the
+The instruction \texttt{new} should not be used in modern C++, creating a simple
+stack variable is enough and if the pointer is needed, it should be created with
+\texttt{std::make\_unique} or \texttt{std::make\_shared}.
+
+Expressions marked with \texttt{constexpr} and methods that will be used on the device must have the
 keyword \texttt{\_\_device\_\_}.
-To keep a copy on the host, the double keyword
-\texttt{\_\_host\_\_ \_\_device\_\_} muste be used.
+As this keyword indicates that the method will be compiled by \texttt{nvcc} and
+it will not be available anymore on the host.
+To compile two versions of the method, one for the host and one for the device,
+the double keyword \texttt{\_\_host\_\_ \_\_device\_\_} muste be used.
 
 
 \subsubsection{Shared memory}
 \label{ch:analyze:cuda:memory:shared}
 
 The shared memory is a memory that is shared between the threads of a block.
-It is quicker than the device memory but it is limited to 48~KB per block.
+It is quicker than the device memory but it is limited per block.
+In the \acrshort{gpu} used it is 48~KB but the limitations are described in the
+documentation~\cite{cuda-capability}.
 The shared memory is used to share data between the threads of a block and to
 cache data from the global memory or exchange data between the threads.
 
 The shared memory is allocated with the keyword \texttt{\_\_shared\_\_} and it
 can be done statically (see code~\ref{code:analyze:cuda:memory:shared:static}) or
-(see code dynamically~\ref{code:analyze:cuda:memory:shared:dynamic}).
+dynamically (see code~\ref{code:analyze:cuda:memory:shared:dynamic}).
 As the examples are very close to the code \ref{code:analyze:cuda:memory:device:copy-read},
 the details to copy the data from the host to the device and from the device to
 the host are not shown.
@@ -460,8 +483,8 @@ If the working station doesn't have a \acrshort{gpu}, it is possible to use a
 SSH connection to a server with a \acrshort{gpu}.
 
 To do that with CLion, the first step is to have a project and then in the
-settings, add a toolchain with the \acrshort{cuda} compiler~\ref{fig:analyze:cuda:toolchain}.
-Then in the CMake profile set the toolchain set before~\ref{fig:analyze:cuda:profile}.
+settings, add a toolchain with the \acrshort{cuda} compiler (Figure~\ref{fig:analyze:cuda:toolchain}).
+Then in the CMake profile set the toolchain set before (Figure~\ref{fig:analyze:cuda:profile}).
 
 Usually, the kernels are defined in a \texttt{.cu} file and the host code is in
 a \texttt{.cc} file but everything can be in the same file.
@@ -522,20 +545,21 @@ The application could act as a plugin for Geant4, or a standalone application.
 \subsection{Geant4}
 \label{ch:analyze:atlas:geant4}
 
-Celeritas has an end-to-end solution that can be launched standalone.
-This version allows the developer to have full control of the simulation
-workflow and choose the geometry motors and physics models.
-However, the standalone version needs a lot of development efforts to be as
-complete as Geant4.
+Celeritas is a library that can be integrated into a project to simulate the path
+of particles.
+Figure~\ref{fig:analyze:atlas:geant4:end2end} shows the integration diagram of
+Celeritas into a \acrshort{hep} software.
 
 \image{1}{05-resources/img/analyze/celeritas-end2end-integration.png}
 {Integration diagram of the standalone application~\cite{celeritas-overview-tognini}}
 {fig:analyze:atlas:geant4:end2end}
 
 
-Celeritas has a version called "Acceleritas" that has the same code base as the
-standalone version but is used as a Geant4 plugin.
-This version provides less improvement but all the Geant4's features are available.
+However, developing all the features for tracking needs a lot of effort to be
+as complete as Geant4.
+Celeritas has a library called "Acceleritas" that has been made to be easily
+integrated with Geant4~\cite{geant4}.
+The integration with Geant4 is shown in Figure~\ref{fig:analyze:atlas:geant4:plugin}.
 
 \image{1}{05-resources/img/analyze/celeritas-acceleritas-integration.png}
     {Integration diagram for overloading of Geant4~\cite{celeritas-overview-tognini}}
@@ -546,7 +570,7 @@ matter.
 It is used in multiple fields, including the experiments made in the
 accelerator physics.
 This tool is developed by the \acrfull{cern} and is currently used by the
-\acrfull{atlas} and \acrfull{cms} experiments.
+\acrshort{atlas} and \acrshort{cms} experiments.
 
 
 \subsection{Runge Kutta Dormand Prince}
@@ -555,8 +579,8 @@ This tool is developed by the \acrfull{cern} and is currently used by the
 The \acrfull{rkdp} is a numerical method to solve ordinary differential equations.
 It is defined via the coefficients from the Butcher tableau which is a low triangular
 matrix.
-The method is used to simulate the path of a particle through matter and
-magnetic fields to a boundary of a sensor.
+The method is used to simulate the path of a particle through matter and a
+magnetic field.
 
 This is the Butcher tableau~\ref{tab:analyze:atlas:rkdp:butcher} for the \acrshort{rkdp} used in Celeritas.
 
@@ -590,8 +614,8 @@ The path of a particle is calculated by the \acrshort{rkdp}~\ref{ch:analyze:atla
 \todo{add an image of a particle's path}
 
 As Celeritas is actively developed, not all the particles are now implemented.
-The team focused on the High Luminance experiments and the particles that are
-implemented are listed in Table \ref{tab:analyze:atlas:particles:implemented}.
+Celeritas is targeting production use for the HL-LHC timeline and the
+implemented particles are listed in Table \ref{tab:analyze:atlas:particles:implemented}.
 
 \begin{table}[ht]
     \centering
@@ -636,7 +660,7 @@ to add the following particles~\ref{tab:analyze:atlas:particles:planned}.
                                 & multiple scattering    & charged leptons and hadrons       \\
                                 & continuous energy loss & charged leptons, hadrons and ions \\
         \hline
-        \multirow{3}{*}{Decay}    & two body decay         & $\mu^\pm$, $\tau^\pm$, hadrons    \\
+        \multirow{3}{*}{Decay}  & two body decay         & $\mu^\pm$, $\tau^\pm$, hadrons    \\
                                 & three body decay       & $\mu^\pm$, $\tau^\pm$, hadrons    \\
                                 & n-body decay           & $\mu^\pm$, $\tau^\pm$, hadrons    \\
         \hline
@@ -652,36 +676,42 @@ to add the following particles~\ref{tab:analyze:atlas:particles:planned}.
     \label{tab:analyze:atlas:particles:planned}
 \end{table}
 
+Process defines what is happening, e.g., photon conversion is a photon creating
+an electron and a positron (e-, e+).
+The model implements what is happening when that process occurs (change in
+momentum, direction, energy, ...)
+
 
 \subsection{Implementation}
 \label{ch:analyze:atlas:implementation}
 
-Celeritas is realized in C++ and uses CUDA, HIP or OpenMP to accelerate the
+Celeritas is implemented in C++ and uses CUDA or HIP to accelerate the
 simulation.
 The code is data-oriented and is using composition instead of inheritance, and
 to optimize the kernel launching on the \acrshort{gpu}, all the data are loaded
 one time at the beginning of the simulation.
 
-Celeritas is using a flow of action to process the data given, compute the
-tracks, simulate the collisions and finally return the results as shown in the
-figure \ref{fig:analyze:atlas:implementation:activity-diagram-gpu-topological}.
+Celeritas is executing a sequence of actions for a simulation step, as shown in
+Figure~\ref{fig:analyze:atlas:implementation:activity-diagram-gpu-topological}.
 
 \image{0.75}{05-resources/img/analyze/celeritas-GPU-loop-topological.png}
 {Celeritas's actions activity diagram~\cite{chep2023-presentation-johnson}}
 {fig:analyze:atlas:implementation:activity-diagram-gpu-topological}
 
-My own Bachelor project is focusing on optimizing a part of particle tracking which is
-made in the action called "Along Step".
-This action is executed for each particle by one dedicated \acrshort{gpu}'s
-thread.
+My own Bachelor project is focusing on optimizing a part of particle simulation
+which is made in the action called "Along Step".
+This action is executed once per simulation step and it applies to each particle
+at the same time by one dedicated \acrshort{gpu}'s thread per track.
 Figure \ref{fig:analyze:atlas:implementation:activity-diagram-track} shows
 the activity diagram of the particle's track.
 
 The method \acrshort{rkdp} (see Section~\ref{ch:analyze:atlas:rkdp}) is used to calculate the
-chord of the path during the action "Calculate substep from remaining distance"
+chord of the path during the action "Calculate substep from a remaining distance"
 in Figure \ref{fig:analyze:atlas:implementation:activity-diagram-track}.
 The chord, with different step sizes, is computed until the error meets the
 tolerance or the number of tries is reached.
+A chord is a straight line between two points and the error is the difference
+between the chord and the real path.
 If the tolerance is not met, an ultimate iteration will be made and the error
 is provided.
 
@@ -701,22 +731,23 @@ iteration.
 \subsection{Optimization}
 \label{ch:analyze:atlas:optimization}
 
-Celeritas is already accelerated by \acrshort{gpu}s, but it is suspected that
-the performance can be improved.
+so far Celeritas was focusing mostly on getting a baseline set of features
+necessary to be useful and hasn't spent much effort on optimization, since it
+was designed to run on \acrshort{gpu} it is by definition "already accelerated
+by \acrshort{gpu}s".
 
 To simulate the particles, Celeritas uses one \acrshort{gpu} thread to track one particle.
 All the chords are simulated one after the other on a kernel and a chord needs
 one or more \acrshort{rkdp} iterations.
 
-The team wants to improve performance by using more than one thread per
-track.
+The team suspects that using more than one thread per track will improve the
+performance of the simulation.
+To do that, the threads have to collaborate and this can do the inverse effect
+and slow down the simulation.
 
 \image{0.5}{05-resources/img/analyze/celeritas-optimization.png}
 {Celeritas runtime per action~\cite{chep2023-presentation-johnson}}
 {fig:analyze:atlas:optimization:celeritas-optimization}
-
-
-
 
 
 \section{Images Backup}

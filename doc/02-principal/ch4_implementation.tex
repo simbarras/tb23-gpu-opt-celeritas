@@ -1,7 +1,7 @@
 \chapter{Implementation}
 \label{ch:implementation}
 
-The implementation of this bachelor thesis is not done from scratch, it is the
+The implementation of this Bachelor thesis is not done from scratch, it is the
 improving the Celeritas project.
 My contribution is detailed in a pull request available here~\cite{pull-request-barras}.
 
@@ -212,7 +212,7 @@ To avoid doing that multiple times, it is recommended to use the command
 The important thing is to have \texttt{vecgeom} compiled with \texttt{gcc 11.3}
 and have the variant \texttt{cuda} enabled with the architecture \texttt{80} for
 Zeus and \texttt{70} for Perlmutter.
-During this bachelor thesis, the version of Geant4~\cite{geant4} used was the
+During this Bachelor thesis, the version of Geant4~\cite{geant4} used was the
 11.1 or more.
 Those requirements are shown in Code~\ref{code:implementation:initialization:compile:concretize}.
 
@@ -299,18 +299,20 @@ To launch this script, there is a bash script to set up the environment.
 This step has taken a lot of time at the beginning of the project to have a
 profile that aims to be used to compare with the final version.
 Actually, Celeritas is a wide project and it is not easy to integrate some
-changes, even more, if it must change the way the kernel is launched.
-At the end of the profile, no profile has been done from the entire application
-but just from the test.
+changes when it touches the way the kernel is launched.
+As the changes are not integrated into the simulation, no profile can be done
+to compare with the first one.
+However, a profile of the tests that launch some kernel with the old and the new
+implementations can be done easily.
 
 \section{Test framework}
 \label{ch:implementation:test}
 
-As Celeritas is a complex project, is it too long to update the way the track is
-launched to use many threads for a thread.
+As Celeritas is a complex project, all the architecture changes to use multiple
+threads per track are not in the scope of this Bachelor thesis.
 
 To avoid this problem, the implementation is used and compared in tests.
-These tests are launched automatically after the build but if it is possible to
+These tests are launched automatically after the build but it is possible to
 only launch the wanted test file.
 Code~\ref{code:implementation:test:launch} shows how to build the project
 without launching the tests and then launching the file that contains the tests
@@ -452,7 +454,7 @@ the impact of the number of iterations on the performance.
         \hline
         \textbf{Parameter} & \textbf{Value} \\
         \hline
-        Number of states & 5 \\
+        Number of tracks & 5 \\
         \hline
         Number of threads per track & old: 1, new: 4 \\
         \hline
@@ -478,14 +480,14 @@ To implement a version with more than one thread per track, the threads must
 have indicators to know which state they have to compute and which role the
 thread has. These indicators are the \texttt{id} which represents the track and
 the \texttt{index} which is an integer from 1 to the number of threads per track.
-The thread that computes the same track has to wait for the others so it is
+The threads assigned to the same track have to wait for the others so it is
 important to have a \texttt{mask} to be used to synchronize the threads.
 Code~\ref{code:implementation:rkdp:global-vecmult:compute-indicator} shows how
 the indicators are computed, the \texttt{number\_threads} is the number of
 threads per track.
 How the role of each thread is affected is also shown in the code.
-This way of computing the indicators is the effect of having the threads of the
-same track in the same warp.
+The advantage of computing the id with the division and not with the modulo is
+that the threads assigned to the same track are contiguous in the grid.
 
 \begin{code}
     \captionof{listing}{How the \texttt{id}, \texttt{index} and \texttt{mask} are computed}
@@ -596,7 +598,7 @@ This implementation is based on the previous one~\ref{ch:implementation:rkdp:glo
 The tag is \texttt{rkdp-opti-v0.2} and the difference is the pre-computation of
 the coefficients.
 
-All the indicators, the synchronization and any else that is related to the
+All the indicators, the synchronization and anything else that is related to the
 vector multiplication is the same as the previous implementation.
 
 The pre-computation is done by every worker thread for every coefficient.
@@ -612,7 +614,7 @@ This version is slightly slower than the previous one as shown in
 Table~\ref{tab:implementation:rkdp:global-vecmult-precomp:results}.
 This version can be improved by distributing the pre-computation between the
 threads but this version implies more effort and the version with the shared
-memory should be a way with more potential.
+memory has more potential speedup.
 
 \begin{table}[ht]
     \centering
@@ -656,7 +658,7 @@ FieldStepperResult* shared_result = reinterpret_cast<FieldStepperResult*>(
 \end{code}
 
 The implementation of \texttt{run\_sequential} and \texttt{run\_aside} is
-slightly the same as the version with the global memory as long as the call of
+similar to the version with the global memory as long as the call of
 this method is a bit different as shown in
 Code~\ref{code:implementation:rkdp:shared-vecmult:call}.
 
@@ -688,13 +690,13 @@ else
     \end{minted}
 \end{code}
 
-The call of the kernel is a bit different because the shared memory is
+The call of the kernel changed because the shared memory is
 dynamically allocated, the size to be given as the third property of the
 kernel.
 The size per track is described in Chapter~\ref{ch:design:shared}.
 
 Figure~\ref{fig:implementation:rkdp:shared-vecmult:sequence} shows that all
-threads have to instantiate the shared memory with the indicators.
+threads have to declare the shared memory with the indicators.
 This time is probably longer than the version without the shared memory.
 
 \image{0.5}{05-resources/img/implementation/rkdp-v3.excalidraw.png}
@@ -745,7 +747,7 @@ affects the number of threads per block.
 {fig:implementation:rkdp:shared-vecmult-precomp:sequence}
 
 The result in Table~\ref{tab:implementation:rkdp:shared-vecmult-pre-computed:results}
-are slightly similar to the second implementation.
+are similar to the second implementation.
 The pre-computation seems to take too much time before the first vector
 multiplication.
 
@@ -848,8 +850,12 @@ then the time to compute the coefficients and pass them directly to the methods.
 \subsection{Conclusion}
 \label{ch:implementation:rkdp:conclusion}
 
-To conclude the hypothesis opened by the simulation~\ref{ch:design:simulation},
-the Figure~\ref{fig:implementation:rkdp:conclusion} shows the speedup of the
+In chapter~\ref{ch:design:simulation} about the simulation, the hypothesis is
+that dispatching the vector multiplication and pre-compute the coefficients
+improve the performance.
+This hypothesis is partially correct because the pre-computation is not
+beneficial for the performance but the vector multiplication is.
+The Figure~\ref{fig:implementation:rkdp:conclusion} shows the speedup of the
 different implementations.
 
 \image{0.75}{05-resources/img/implementation/conclusion.png}

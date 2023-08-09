@@ -1,7 +1,7 @@
 \chapter{Context}
 \label{spec:ch:context}
 
-This bachelor thesis is done by Simon Barras and supervised by Frederic Bapst and Jean Hennebert.
+This Bachelor thesis is done by Simon Barras and supervised by Frederic Bapst and Jean Hennebert.
 The customer Paolo Calafiura is a physicist and computer scientist at the \acrfull{lbl}.
 To do this project, I am moving to Berkeley, California, for ten weeks.
 The goal is to improve the performance of the project Celeritas, which is a particle physics simulation software accelerated by \acrshort{gpu}s.
@@ -62,4 +62,4 @@ Celeritas is already accelerated by \acrshort{gpu}s, however, the team wants to 
 In the current version of the code, each particle track is processed in parallel by one GPU thread, with no collaboration between threads.
 GPU profiling of the code shows that execution time is dominated by two kernels.
 The first one is handled by the interaction with the detector geometry to know where, in 3D space, the particle is situated and during the profiling, the library used is vecGeom~\cite{VecGeom}.
-The second kernel, which will be the focus of this bachelor thesis project, is the computation of a differential equation using Dormand-Prince~\cite{princeDormand}.
+The second kernel, which will be the focus of this Bachelor thesis project, is the computation of a differential equation using Dormand-Prince~\cite{princeDormand}.

@@ -1,7 +1,7 @@
 \chapter{Design}
 \label{ch:design}
 
-This bachelor thesis is focusing on optimizing the \acrlong{rkdp} algorithm
+This Bachelor thesis is focusing on optimizing the \acrlong{rkdp} algorithm
 in a context of \acrshort{gpu} computing.
 The design of the project amounts to find possible adaptations that could
 decrease the execution time of the algorithm.
@@ -27,8 +27,8 @@ middle state.
 
 In the implementation of the \acrshort{rkdp}, we can identify different types of
 code.
-The first category must is the code that must be executed sequentially and has no option
-to be distributed on multiple threads.
+The first category is the code that must be executed sequentially and cannot be
+parallelized.
 The second group of concern is the code that concerns the computation of several
 expressions that must be assigned before the first reference to the
 corresponding variables.
@@ -38,7 +38,7 @@ but could be split into parallel substeps.
 Figure \ref{fig:design:simulation:principle:code-type} shows how the
 fourth step is computed and which part of the code is from which type.
 The red part is the dependent code, that has to be executed sequentially.
-It is the computation of the intermediate state kx using the equation.
+It is the computation of the intermediate state \texttt{kx} using the equation.
 The blue part is the independent code that just has to be executed before its
 first use. This is the computation of the coefficients with the step's size.
 The green part is the vector multiplication that can be executed in parallel.
@@ -118,14 +118,16 @@ in the next section~\ref{ch:design:simulation:scheduling}.
 The \texttt{SchedulingTree} has been developed to compute the ideal start time
 for a given task with the best wanted time.
 
-To choose which task will be executed on which thread, we ask every thread,
-which are represented by a \texttt{SchedulingTree}, to know which thread could
-start the thread with the best time.
+To have the best scheduling possible, each task has to be executed as soon as
+possible.
+To do that, each thread is represented by a \texttt{SchedulingTree} and it can
+return efficiently the best time to start a task.
 When the best thread is found, the task is added to it.
 
 The implementation is inspired by an interval tree.
 The tasks are the leaf and every node has the same start as the left child and
 the same end as the right child.
+The end is computing with the start time and the duration of the task.
 This allows the code to know if a task could potentially overlap an existing one.
 To get the result, the leaves have to be read from the left to the right.
 The tasks are only stocked in the leaves and the node is only used to know if a
@@ -168,10 +170,18 @@ Those results are obtained by recording the data from a Python script running
 the \acrshort{rkdp} with the chaotic Lorenz attractor equation.
 
 The second graph of Figure \ref{fig:design:simulation:results} shows
-how the time is spent in each step.
+how the time is spent in each \acrshort{rkdp} step.
 This version is without some dead time that appears when recording the events.
+This is due to the time needed to save the event in the logger.
 It is important to have this version because when we are simulating the
 distribution on the threads, we are not taking into account the dead time.
+
+The time of the dependent code is not the same every time but it is always the
+compute the state using the equation.
+To explain the first longer time, this is probably due to the first call of the
+equation that is not in the cache.
+The last step does not have to create a new state it is just updating the
+result so it is faster.
 
 The graphs three and four are showing what each thread is doing.
 We can see that pre-computing the coefficients with the three threads when the
@@ -211,13 +221,13 @@ new \acrshort{rkdp}.
 To use this memory, the developer must deal with constraints about the size and
 the alignment of the data.
 
-For each track, the shared must contain eight \texttt{OdeState} and one
+For each track, the shared memory must contain eight \texttt{OdeState} and one
 \texttt{FieldStepperResult}. The \texttt{OdeState}s are the seven intermediate
 states (kx) and the last one is the state that is updated during the
 whole method (along\_state).
 If the coefficients are pre-computed using multiple threads, they also have to be
 stored in the shared memory.
-Table~\ref{tab:design:shared-component} shows the size of each objects for a
+Table~\ref{tab:design:shared-component} shows the size of each object for a
 track.
 
 \begin{table}[ht]
@@ -255,6 +265,10 @@ and 248 threads for the version with precomputed coefficients (Equation~\ref{eq:
     \label{eq:design:shared:dimension-with-coef}
 \end{equation}
 
+The limitations of the block size and the shared memory size are dependent on
+the \acrshort{gpu} architecture.
+The limitations are described in the official documentation~\cite{cuda-capability}.
+
 However, the shared memory size is not the only constraint.
 The shared memory can be allocated statically or dynamically.
 In this project, the number of tracks is not known at compile time so it is
@@ -278,7 +292,7 @@ address of the next array.
 \label{ch:design:iterations}
 
 As shown in the Chapter~\ref{ch:analyze:atlas:implementation} and Figure~\ref{fig:analyze:atlas:implementation:iteration-hit},
-more than 80\% of the time concerns just one iteration.
+more than 80\% of the calls concern just one iteration.
 However, this does not take into account the time spent to get these results.
 For example, if a chord needs 100 iterations, it has taken 100 times more time
 than a chord that needs only one iteration.
@@ -299,6 +313,7 @@ Based on the heuristic rule of the 80/20, a good number of iterations
 will be a number that represents 80\% of the time.
 Figure~\ref{fig:design:iterations:cumulative-time} shows that this number
 is 40 iterations.
+To test \acrshort{rkdp}, the method will be called 40 times for every particles.
 
 \image{0.5}{05-resources/img/design/cumulative-time-iteration.png}
         {Cumulative percentage of the time spent in the iterations with a marker
