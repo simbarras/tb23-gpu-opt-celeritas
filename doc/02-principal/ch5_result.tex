@@ -43,7 +43,7 @@ graph~\ref{fig:design:iterations:cumulative-time}.
 \label{ch:result:comparison:block}
 
 The number of threads per block is limited by the \acrshort{gpu} architecture.
-Most of the \acrshort{gpu} have a limit of 1024 threads per block but that is
+Most of the \acrshort{gpu}s have a limit of 1024 threads per block but that is
 not the only limit.
 The number of registers used per thread during the execution or the shared memory
 can get down the limitation of the number of threads per block.
@@ -83,8 +83,8 @@ Overall, the performance is good because the speedup is from 135\% to 160\%.
 \section{Runtime}
 \label{ch:result:comparison:runtime}
 
-The goal of this comparison is to prove that the new implementation is faster
-than the old one for the same context as a classic Celeritas runtime.
+The goal of this comparison is to prove that the new implementation
+is faster than the old one for the same context as a classic Celeritas runtime.
 To do that, the number of tracks will be highly increased to show if the
 performance at one million tracks is better than the old implementation.
 
@@ -133,7 +133,7 @@ frequency.
 This observation can also be made looking Figure~\ref{fig:result:comparison:multi-blocks}
 when the number of threads at the jump was lower.
 As the number of threads per block is the same for the first two implementations,
-it is possible that the number of block have a higher impact than the number of
+it is possible that the number of blocks has a higher impact than the number of
 threads.
 
 Figure~\ref{fig:result:comparison:runtime-block} is basically the same graph as
@@ -152,7 +152,7 @@ the shared memory implementation and one for the global memory implementation
 and the old implementation.
 
 As the resources available on a \acrshort{gpu} are limited, the number of
-threads that run at the same time are limited.
+threads that run at the same time is limited.
 If this number is exceeded, the \acrshort{gpu} will have more rounds to do to
 complete the work.
 These rounds are called \texttt{waves} and Equation~\ref{eq:result:comparison:gpu:wave}
@@ -206,7 +206,7 @@ This number increase by one every 84 blocks for the old and the global memory
 version and every two 84 blocks for the shared memory version.
 
 \image{1}{05-resources/img/result/profile-wave.png}
-{Table that show the waves per SM}
+{Table that shows the waves per SM}
 {fig:result:comparison:profiling:wave}
 
 To read the profile~\cite{nsight-profile}, use Table~\ref{tab:result:comparison:profile} to know

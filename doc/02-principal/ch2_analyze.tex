@@ -3,7 +3,7 @@
 
 During this chapter, the project is analyzed to understand the context, the
 goals and challenges.
-This project is focused on the optimization of the particle tracking using
+This project is focused on the optimization of particle tracking using
 \acrshort{gpu}s.
 \acrshort{gpu}'s programming is something totally new for a Bachelor's
 student at the \acrshort{heia}.
@@ -209,7 +209,7 @@ get the result of the kernel so the result must be copied back to the host
 using the same mechanism as the arguments.
 
 \begin{code}
-    \captionof{listing}{Load ang read data from the device memory}
+    \captionof{listing}{Load and read data from the device memory}
     \label{code:analyze:cuda:memory:device:copy-read}
     \begin{minted}{C++}
 __global__ void kernel_name(ObjectType1 *input1,
@@ -272,7 +272,7 @@ keyword \texttt{\_\_device\_\_}.
 As this keyword indicates that the method will be compiled by \texttt{nvcc} and
 it will not be available anymore on the host.
 To compile two versions of the method, one for the host and one for the device,
-the double keyword \texttt{\_\_host\_\_ \_\_device\_\_} muste be used.
+the double keyword \texttt{\_\_host\_\_ \_\_device\_\_} must be used.
 
 
 \subsubsection{Shared memory}
@@ -379,14 +379,14 @@ integrity or exchange data.
 
 Atomic operations are used to preserve the integrity of the data when multiple
 threads are trying to access the same data.
-For example, if two threads are trying to increment a shared integer, the
-result will be wrong because the two threads will read the same value and write
+For example, if two threads are trying to increment a shared integer,
+the result will be wrong because the two threads will read the same value and write
 the same value so the result will be incremented only once.
 
 Every atomic operation requires a pointer to the data that could eventually be
 modified and a value.
-The value could have different roles but the instruction is returning the old
-value stored there.
+The value could have different roles but the instruction is returning
+the old value stored there.
 The different atomic operations are listed in Table \ref{tab:analyze:cuda:synchronization:atomic}.
 
 \begin{table}[ht]

@@ -67,7 +67,7 @@ the computation of a differential equation using Dormand-Prince~\cite{princeDorm
 However, the thesis can be a success even if the project doesn't meet the improvement.
 This is because we don't yet know whether thread synchronization will be more
 time-consuming than the original version.
-In addition, the kernel launch in Celeritas have to be changed, and this
+In addition, the kernel launch in Celeritas has to be changed, and this
 could take up a considerable amount of optimization time.
 For the Bachelor thesis, it is sufficient to have a proof of concept that
 demonstrates if the enhancement is effective and deserves to be integrated.
@@ -96,7 +96,7 @@ This step will be done at the beginning of the project on-site.
 \subsection{Improve the performance}
 \label{ch:introduction:objectives:improve-the-performance}
 
-The main goal of the project is to improve the performance of the implementation of Dormand-Prince method~\cite{princeDormand}.
+The main goal of the project is to improve the performance of the implementation of \acrfull{rkdp} method~\cite{princeDormand}.
 This last mandatory requirement is the core of the thesis and the most important part of the project and it will require the knowledge gained in the first two steps to improve the performance.
 
 To conclude this step, the code must compile, pass the unit test, and a profiler must be run to show the difference between the new and the legacy implementation of the DormandPrince method.
@@ -108,7 +108,7 @@ This step will be done after the first two steps and it will take the whole time
 \label{ch:introduction:optional-requirements}
 
 These optional goals are good additions to the project but they are not
-require to have a concrete result.
+required to have a concrete result.
 
 The first one is to have a portable performance.
 The purpose of Celeritas is to be run on all kinds of \acrshort{gpu} and even on machines with just a \acrshort{cpu}.

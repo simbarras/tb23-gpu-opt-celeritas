@@ -3,7 +3,7 @@
 
 This Bachelor thesis is focusing on optimizing the \acrlong{rkdp} algorithm
 in a context of \acrshort{gpu} computing.
-The design of the project amounts to find possible adaptations that could
+The design of the project amounts to finding possible adaptations that could
 decrease the execution time of the algorithm.
 
 \section{Simulation}
@@ -142,7 +142,7 @@ not.
         {fig:design:simulation:scheduling:schema}
 
 The \acrshort{api} of the \texttt{SchedulingTree} is shown in Table~\ref{tab:design:simulation:scheduling:api}.
-The implementation is not user-bad-usage-proof because indicating an invalidate
+The implementation is not user-bad-usage-proof because indicating an invalid
 start time in the method \texttt{add} will result in the overlapping of some
 tasks.
 
@@ -183,7 +183,7 @@ equation that is not in the cache.
 The last step does not have to create a new state it is just updating the
 result so it is faster.
 
-The graphs three and four are showing what each thread is doing.
+Graphs three and four are showing what each thread is doing.
 We can see that pre-computing the coefficients with the three threads when the
 first one is computing the equation seems to be a good idea.
 Also, distributing the vector multiplication could help a lot to decrease the
@@ -201,7 +201,7 @@ To implement this solution, the workload has to be divided between the threads.
 According to the result, the best workload would be something like Figure~\ref{fig:design:simulation:result:thread-workload}.
 Where a controller is computing the intermediate state using the equation and the
 other threads are computing the vector multiplication.
-The role of the threads has been slightly adapted from graph number three and
+The role of the threads has been slightly adapted from graph three and
 four of Figure~\ref{fig:design:simulation:results}.
 
 \image{0.5}{05-resources/img/design/thread-workload.excalidraw.png}
@@ -313,7 +313,7 @@ Based on the heuristic rule of the 80/20, a good number of iterations
 will be a number that represents 80\% of the time.
 Figure~\ref{fig:design:iterations:cumulative-time} shows that this number
 is 40 iterations.
-To test \acrshort{rkdp}, the method will be called 40 times for every particles.
+To test \acrshort{rkdp}, the method will be called 40 times for every particle.
 
 \image{0.5}{05-resources/img/design/cumulative-time-iteration.png}
         {Cumulative percentage of the time spent in the iterations with a marker

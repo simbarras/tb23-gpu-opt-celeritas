@@ -64,7 +64,7 @@ for example, \texttt{module load git}.
 \label{ch:implementation:initialization:environment:spack}
 
 Spack~\cite{Spack} is an advanced package manager designed for \acrshort{hpc} applications.
-This tool can be installed by the user and it helps to install some project like
+This tool can be installed by the user and it helps to install some projects like
 Celeritas with their dependencies.
 Like module, spack allows the user to work on many different projects with the
 system of the environment.
@@ -129,7 +129,7 @@ As shown in the previous sections, the environment is something important and
 it needs a bit of a configuration to have the right one.
 Code \ref{code:implementation:initialization:environment:celeritas:create} is
 the profile used to develop the project on the host Zeus.
-It assumes that the environment "celeritas" has already been created with spack.
+It assumes that the environment \texttt{celeritas} has already been created with spack.
 
 \begin{code}
     \captionof{listing}{Profile to work with Celeritas}
@@ -290,7 +290,7 @@ Celeritas needs complex input files to run and as the development has been done
 on the Zeus, a computer with \acrshort{gpu}s in the \acrshort{lbl}.
 The easiest way to run \texttt{celer-sim}, the application to simulate the
 path of the particles is to use a Python script.
-This script has been adapted into this Pull request~\cite{regression-pull-request}.
+This script has been adapted into this pull request~\cite{regression-pull-request}.
 
 The script \texttt{run-problems.py} is a Python script that builds the input
 files and run the application.
@@ -391,8 +391,8 @@ It launches the old implementation and compares all results with the ones from a
 new implementation.
 The name of the test start \texttt{result\_} and the suffix is the name of the
 implementation.
-The second type of test is here to check that the new implementation is at
-At least as fast as the old one.
+The second type of test is here to check that the new implementation is
+at least as fast as the old one.
 The test has \texttt{time\_} as a prefix and the suffix is the name of the
 implementation.
 The last type is here to compare the implementation between them.
@@ -477,10 +477,10 @@ memory and vector multiplication.
 This implementation is tagged with \texttt{rkdp-opti-v0.1}.
 
 To implement a version with more than one thread per track, the threads must
-have indicators to know which state they have to compute and which role the
-thread has. These indicators are the \texttt{id} which represents the track and
+have indicators to know which state they have and which role.
+These indicators are the \texttt{id} which represents the track and
 the \texttt{index} which is an integer from 1 to the number of threads per track.
-The threads assigned to the same track have to wait for the others so it is
+The threads grouped around the same track have to wait for the others so it is
 important to have a \texttt{mask} to be used to synchronize the threads.
 Code~\ref{code:implementation:rkdp:global-vecmult:compute-indicator} shows how
 the indicators are computed, the \texttt{number\_threads} is the number of
@@ -733,8 +733,7 @@ The implementation number 2~\ref{ch:implementation:rkdp:global-vecmult-precomp},
 as shown that if all the worker threads precompute all the coefficients, the
 performance is worse.
 The goal of this implementation which is tagged with \texttt{rkdp-opti-v0.4} is
-to show that if the pre-computation is distributed is it possible to have a
-better performance.
+to show that if the pre-computation is distributed will improve the performance.
 
 Figure~\ref{fig:implementation:rkdp:shared-vecmult-precomp:sequence} shows that
 the worker threads have to declare more shared variables to store the
@@ -773,7 +772,7 @@ multiplication.
 \label{ch:implementation:rkdp:shared-vecmult-precomp-opti}
 
 The hypothesis behind this implementation is that the pre-computation of the
-coefficients take more time than the first step of the sequential part.
+coefficients takes more time than the first step of the sequential part.
 This implementation is tagged \texttt{rkdp-opti-v0.5} and the pre-computation is
 distributed between the different vector multiplication.
 
@@ -783,7 +782,7 @@ Table~\ref{tab:implementation:rkdp:shared-vecmult-precomp-opti:coefficients}
 shows that just by completing three coefficients before a vector multiplication
 is enough to have enough coefficients for the five first steps.
 Before step 6, the worker threads have to compute another three next
-coefficients and before the steps eight and nine, the worker threads have to
+coefficients and before the step eight and nine, the worker threads have to
 compute the last coefficients.
 Step 7 is not shown here because the coefficients are not used.
 
@@ -825,10 +824,10 @@ but the pre-computation is distributed between the vector multiplication.
 
 Surprisingly, the results in Table~\ref{tab:implementation:rkdp:shared-vecmult-precomp-opti:results}
 are not much better than the previous implementation.
-The hypothesis is not correct and it shows that the pre-computation is not
-benefit for the performance.
-This is probably because the time to store the value and read it after is longer
-then the time to compute the coefficients and pass them directly to the methods.
+The hypothesis is not correct and it shows that the pre-computation
+is not benefic for the performances.
+This is probably because the time to store the value and to read it after
+is longer than the time to compute the coefficients and pass them directly to the methods.
 
 \begin{table}[ht]
     \centering
