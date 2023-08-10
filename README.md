@@ -8,6 +8,11 @@
 >[![Report version](https://gitlab.forge.hefr.ch/frederic.bapst/tb23-gpu-opt-celeritas/-/jobs/artifacts/develop/raw/doc/report.svg?job=compile-report-pdf)](https://gitlab.forge.hefr.ch/frederic.bapst/tb23-gpu-opt-celeritas/-/jobs/artifacts/develop/raw/doc/report.pdf?job=compile-report-pdf)
 >[![Specification version](https://gitlab.forge.hefr.ch/frederic.bapst/tb23-gpu-opt-celeritas/-/jobs/artifacts/develop/raw/doc/specification.svg?job=compile-specification-pdf)](https://gitlab.forge.hefr.ch/frederic.bapst/tb23-gpu-opt-celeritas/-/jobs/artifacts/develop/raw/doc/specification.pdf?job=compile-specification-pdf)
 
+## Links
+
+- [Fork](https://github.com/simbarras/celeritas)
+- [Pull request](https://github.com/celeritas-project/celeritas/pull/864)
+
 ## Generative AI and tools
 
 To avoid all misunderstandings with the new chart of the HEIA-FR concerning the usage of tools issued from generative AI, I want to clarify.
