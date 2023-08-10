@@ -116,22 +116,65 @@ less difference.
 
 To explain these jump, Fiugure~\ref{fig:result:comparison:runtime-thread}
 displays the runtime with the number of threads and not the number of tracks.
-It shows that the old implementation is slower but it is slower for a number of
-threads and for this same number, the old implementation is tracking four times
+It shows that the old implementation is slower for a given a number of
+threads but keep in mind that the old implementation is tracking four times
 more particles.
-The frequency has been set to 64'512 threads which are corresponding to 84 blocks
-for the old and the global memory implementation.
+The frequency has been set to 64'512 threads which is the jump at 65'280 minus
+the size of a block (720 threads) because we want the start of the jump.
 
 \image{0.65}{05-resources/img/result/runtime-thread.png}
 {Runtime on the number of threads}
 {fig:result:comparison:runtime-thread}
 
-This number of 64'512 threads is not a coincidence because it is a multiple of
-10752 which is the number of \acrshort{cuda} cores on the Nvidia A6000~\cite{nvidia-a6000}.
-In fact, this is 6 times the number of \acrshort{cuda} cores but this factor is
-arbitrary.
-It depends on the requested resources of the kernel so this factor change for
-every kernel.
+This number of 64'512 threads seems to fit perfectly into the old implementation
+with the global memory.
+However, the new implementation with the shared memory seems to have a higher
+frequency.
+This observation can also be made looking Figure~\ref{fig:result:comparison:multi-blocks}
+when the number of threads at the jump was lower.
+As the number of threads per block is the same for the first two implementations,
+it is possible that the number of block have a higher impact than the number of
+threads.
+
+Figure~\ref{fig:result:comparison:runtime-block} is basically the same graph as
+previously but with the number of blocks instead of the number of threads.
+The frequency has been set to 84 which is the number of \acrshort{sm} on the
+Nvidia A6000~\cite{nvidia-a6000} (the graphic card used for the tests).
+
+\image{0.65}{05-resources/img/result/runtime-block.png}
+{Runtime on the number of blocks}
+{fig:result:comparison:runtime-block}
+
+Now, every jump appears on a marker, but not at every marker for the implementation
+with the shared memory.
+This difference is due to the number of blocks per \acrshort{sm} which is two for
+the shared memory implementation and one for the global memory implementation
+and the old implementation.
+
+As the resources available on a \acrshort{gpu} are limited, the number of
+threads that run at the same time are limited.
+If this number is exceeded, the \acrshort{gpu} will have more rounds to do to
+complete the work.
+These rounds are called \texttt{waves} and Equation~\ref{eq:result:comparison:gpu:wave}
+shows how to calculate the number of waves.
+
+\begin{equation}
+    \text{Waves} = \frac{\text{Launched blocks}}{\text{Number of SM}} * \frac{\text{Blocks}}{\text{SM}}
+    \label{eq:result:comparison:gpu:wave}
+\end{equation}
+
+To understand the number block per \acrshort{sm}, it is important to know how
+the blocks are executed.
+The \acrshort{gpu} assigns a block to a \acrshort{sm} and it manages its own
+resources to execute the block.
+Sometimes, the blocks are not too gourmet and more than one block can fit on
+a \acrshort{sm}.
+
+According to the previous section, the problem with the new implementation is
+that they require too many resources and the number of waves is increasing.
+The number of waves is the cause of the jump in the runtime that costs a lot of
+performance.
+
 
 \subsection{Profiling}
 \label{ch:result:comparison:profiling}
@@ -150,7 +193,8 @@ The second graph shows the maximum size of the shared memory per block which is
 48 KB.
 
 \image{1}{05-resources/img/result/profile-limitation.png}
-{Graphs that show the limitation of the GPU}
+{Graphs that show the limitation of the GPU for the old version but it is the
+same for the version with the global memory}
 {fig:result:comparison:profiling:limitation}
 
 To confirm the hypothesis of the waves per \acrshort{sm}, the table on
@@ -158,9 +202,11 @@ Figure~\ref{fig:result:comparison:profiling:wave} show the kernel configuration
 and the relevant information is the number of waves per \acrshort{sm}.
 As the kernel time is also given by the tool, it confirms that every jump is
 relating to a number of waves that is not an integer number.
+This number increase by one every 84 blocks for the old and the global memory
+version and every two 84 blocks for the shared memory version.
 
 \image{1}{05-resources/img/result/profile-wave.png}
-{Graphs that show the waves per SM}
+{Table that show the waves per SM}
 {fig:result:comparison:profiling:wave}
 
 To read the profile~\cite{nsight-profile}, use Table~\ref{tab:result:comparison:profile} to know
