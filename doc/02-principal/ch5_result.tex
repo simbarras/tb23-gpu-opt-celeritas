@@ -114,12 +114,12 @@ less difference.
 \subsection{GPU limits}
 \label{ch:result:comparison:gpu}
 
-To explain these jump, Fiugure~\ref{fig:result:comparison:runtime-thread}
+To explain these jump, Figure~\ref{fig:result:comparison:runtime-thread}
 displays the runtime with the number of threads and not the number of tracks.
 It shows that the old implementation is slower for a given a number of
 threads but keep in mind that the old implementation is tracking four times
 more particles.
-The frequency has been set to 64'512 threads which is the jump at 65'280 minus
+The frequency has been set to 1 every 64'512 threads which is the jump at 65'280 minus
 the size of a block (720 threads) because we want the start of the jump.
 
 \image{0.65}{05-resources/img/result/runtime-thread.png}

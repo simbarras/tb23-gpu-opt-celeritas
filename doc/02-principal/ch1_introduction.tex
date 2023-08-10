@@ -9,10 +9,10 @@ The goal is to explore a way to improve the performance of the project Celeritas
 which is a particle physics simulation software accelerated by \acrshort{gpu}s.
 
 The two main customers are \acrshort{cms} and \acrshort{atlas}, two experiments
-are made at the \acrfull{cern} with the \acrfull{lhc} and run
-their simulation with Geant4.
+are made at the \acrfull{cern} with the \acrfull{lhc}.
 They are both using Geant4 and they have not committed to using Celeritas
 beyond an initial evaluation.
+
 Detector simulation is used to validate and calibrate the algorithms used to
 estimate the properties of the primary particles from the observed detector data.
 The main goal of the thesis will be to optimize a GPU-accelerated version of
@@ -71,9 +71,6 @@ In addition, the kernel launch in Celeritas has to be changed, and this
 could take up a considerable amount of optimization time.
 For the Bachelor thesis, it is sufficient to have a proof of concept that
 demonstrates if the enhancement is effective and deserves to be integrated.
-To measure the changes done during the internship, the profiler must be run
-before and after each step of the project.
-The mandatory requirements are described in the following section.
 
 \subsection{Learn GPU programming}
 \label{ch:introduction:objectives:learn-gpu-programming}
@@ -86,10 +83,9 @@ To take advantage of the delay between the beginning of the Bachelor thesis and 
 \subsection{Understand the project}
 \label{ch:introduction:objectives:understand-the-project}
 
-To be able to improve the performance of the code, the first step is to understand the project and it's always better to understand the background: why it is needed, who will use it and which paradigm and tools are used.
-
-To measure the performance gained, it is necessary to know where the project is at each step.
-To take a snapshot of the performance, a profiler can be run and this includes that we can compile and launch the project.
+To be able to improve the performance of the code, the first step is to
+understand the project and it's always better to understand the background:
+why it is needed, who will use it and which paradigm and tools are used.
 This step will be done at the beginning of the project on-site.
 
 
@@ -98,11 +94,8 @@ This step will be done at the beginning of the project on-site.
 
 The main goal of the project is to improve the performance of the implementation of \acrfull{rkdp} method~\cite{princeDormand}.
 This last mandatory requirement is the core of the thesis and the most important part of the project and it will require the knowledge gained in the first two steps to improve the performance.
-
-To conclude this step, the code must compile, pass the unit test, and a profiler must be run to show the difference between the new and the legacy implementation of the DormandPrince method.
-To achieve this goal, the profiles must show an improvement, but this could meet some difficulties to be realized and integrated into the project.
-In all cases, the failure of this goal doesn't mean the failure of the thesis if the documentation is correctly done and explains the results obtained and how is it possible or not to continue to this path.
-This step will be done after the first two steps and it will take the whole time left.
+The realization is done in a test that computes the time of the different
+implementations to compare them.
 
 \section{Optional requirements}
 \label{ch:introduction:optional-requirements}
@@ -115,6 +108,7 @@ The purpose of Celeritas is to be run on all kinds of \acrshort{gpu} and even on
 During the optimization, the improvement will be checked on the Perlmutter~\cite{Perlmutter} which uses Nvidia A100 with the architecture Ampere~\cite{ampere} and some improvement can be only effective to this kind of \acrshort{gpu}.
 This goal is here to check if the improvement has a positive effect on other architectures and if it is not, to find a way to do that.
 To begin this step, the main goal needs to be finished.
+Celeritas is made to be run on AMD \acrshort{gpu}s too.
 
 The second optional objective is to do another performance improvement.
 If the performance of the Runge-Kutta method~\cite{Runge-Kutta-methods} is improved, another optimization can be done.

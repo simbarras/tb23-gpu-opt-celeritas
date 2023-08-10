@@ -299,7 +299,7 @@ To launch this script, there is a bash script to set up the environment.
 This step has taken a lot of time at the beginning of the project to have a
 profile that aims to be used to compare with the final version.
 Actually, Celeritas is a wide project and it is not easy to integrate some
-changes when it touches the way the kernel is launched.
+changes when it touches the way the kernels are launched.
 As the changes are not integrated into the simulation, no profile can be done
 to compare with the first one.
 However, a profile of the tests that launch some kernel with the old and the new
@@ -389,7 +389,7 @@ There are three types of tests in the file \texttt{DormandPrinceStepper.test.cc}
 The first one is here to check that the results are correct.
 It launches the old implementation and compares all results with the ones from a
 new implementation.
-The name of the test start \texttt{result\_} and the suffix is the name of the
+The name of the tests start with \texttt{result\_} and the suffix is the name of the
 implementation.
 The second type of test is here to check that the new implementation is
 at least as fast as the old one.
@@ -481,7 +481,7 @@ have indicators to know which state they have and which role.
 These indicators are the \texttt{id} which represents the track and
 the \texttt{index} which is an integer from 1 to the number of threads per track.
 The threads grouped around the same track have to wait for the others so it is
-important to have a \texttt{mask} to be used to synchronize the threads.
+important to have a \texttt{mask} that is used to synchronize the threads.
 Code~\ref{code:implementation:rkdp:global-vecmult:compute-indicator} shows how
 the indicators are computed, the \texttt{number\_threads} is the number of
 threads per track.

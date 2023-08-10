@@ -39,7 +39,8 @@ Cooking is a task that must be done sequentially and require some skills and
 efficiency to be done quickly.
 Dressing the table is a task where the skills don't affect the time but the
 number of hands does.
-This task can be done by the kids when everyone is putting something on the table.
+This task can be done by the kids when everyone is putting something on the table
+and cooking is done by John because he will be faster than the kids.
 In our case, John is the \acrshort{cpu} and the kids are the \acrshort{gpu}s.
 
 The \acrshort{gpu}s are used when the number of workers is more important than
@@ -72,7 +73,7 @@ The \acrshort{gpu} is a \acrshort{simd} processor and the \acrshort{cpu} is a
 \acrshort{sisd} processor.
 The table \ref{tab:analyze:gpu:architecture:instruction-data} does not show the
 frequency of the processor is an important factor for performance.
-This explains why the \acrshort{cpu} is more efficient than the \acrshort{gpu}
+This explains why the \acrshort{cpu} is faster than the \acrshort{gpu}
 for most of the cases.
 To be fair, things are a bit more complicated and there is more than just
 four types of processors and one processor can be classified into multiple
@@ -528,18 +529,17 @@ early 2020.
 This project purposed to the large amount of data produced by the
 \acrfull{lhc} that is not possible to be processed by traditional
 \acrshort{cpu}s.
-The project is actively developed by five laboratories that are: \acrfull{lbl},
+As shown in Figure~\ref{fig:analyze:atlas:organization} The project is actively
+developed by five laboratories that are: \acrfull{lbl},
 \acrfull{ornl}, \acrfull{anl}, \acrfull{fnal} and \acrfull{bnl}.
 The code leader is Seth Johnson from \acrshort{ornl} and Julien Esseiva is the only
 participant from the \acrshort{lbl}.
+The goal is to simulate electromagnetic physics for the \acrshort{lhc} detectors
+with the same precision as Geant4~\cite{geant4}.
 
 \image{0.75}{05-resources/img/analyze/celeritas-organization.png}
 {Celeritas actors and roles~\cite{celeritas-presentation-johnson}}
 {fig:analyze:atlas:organization}
-
-The goal is to simulate electromagnetic physics for the \acrshort{lhc} detectors
-with the same precision.
-The application could act as a plugin for Geant4, or a standalone application.
 
 
 \subsection{Geant4}
@@ -611,11 +611,9 @@ This is the Butcher tableau~\ref{tab:analyze:atlas:rkdp:butcher} for the \acrsho
 Celeritas simulates the path of a particle through matter and magnetic fields.
 The path of a particle is calculated by the \acrshort{rkdp}~\ref{ch:analyze:atlas:rkdp} method.
 
-\todo{add an image of a particle's path}
-
 As Celeritas is actively developed, not all the particles are now implemented.
-Celeritas is targeting production use for the HL-LHC timeline and the
-implemented particles are listed in Table \ref{tab:analyze:atlas:particles:implemented}.
+Celeritas is targeting production use for the \acrshort{atlas} and \acrshort{cms}
+ and the implemented particles are listed in Table \ref{tab:analyze:atlas:particles:implemented}.
 
 \begin{table}[ht]
     \centering
@@ -679,7 +677,7 @@ to add the following particles~\ref{tab:analyze:atlas:particles:planned}.
 Process defines what is happening, e.g., photon conversion is a photon creating
 an electron and a positron (e-, e+).
 The model implements what is happening when that process occurs (change in
-momentum, direction, energy, ...)
+momentum, direction, energy, ...).
 
 
 \subsection{Implementation}
@@ -687,8 +685,8 @@ momentum, direction, energy, ...)
 
 Celeritas is implemented in C++ and uses CUDA or HIP to accelerate the
 simulation.
-The code is data-oriented and is using composition instead of inheritance, and
-to optimize the kernel launching on the \acrshort{gpu}, all the data are loaded
+The code is data-oriented and is using composition instead of inheritance.
+To optimize the kernel launching on the \acrshort{gpu}, all the data are loaded
 one time at the beginning of the simulation.
 
 Celeritas is executing a sequence of actions for a simulation step, as shown in
@@ -739,32 +737,16 @@ by \acrshort{gpu}s".
 To simulate the particles, Celeritas uses one \acrshort{gpu} thread to track one particle.
 All the chords are simulated one after the other on a kernel and a chord needs
 one or more \acrshort{rkdp} iterations.
+Figure~\ref{fig:analyze:atlas:optimization:celeritas-optimization} shows
+the time spent in each action of the simulation.
+
+\image{0.5}{05-resources/img/analyze/celeritas-optimization.png}
+{Celeritas runtime per action~\cite{chep2023-presentation-johnson}}
+{fig:analyze:atlas:optimization:celeritas-optimization}
 
 The team suspects that using more than one thread per track will improve the
 performance of the simulation.
 To do that, the threads have to collaborate and this can do the inverse effect
 and slow down the simulation.
 
-\image{0.5}{05-resources/img/analyze/celeritas-optimization.png}
-{Celeritas runtime per action~\cite{chep2023-presentation-johnson}}
-{fig:analyze:atlas:optimization:celeritas-optimization}
 
-
-\section{Images Backup}
-\label{ch:analyze:images}
-
-\image{0.5}{05-resources/img/analyze/celeritas-GPU-loop-branch.png}
-{Celeritas activity diagram for the GPU loop (Source: Seth Johnson https://github.com/celeritas-project/celeritas-docs/blob/main/presentations/chep-2023/srj-chep.pdf)}
-{fig:analyze:atlas:implementation:activity-diagram-gpu}
-
-\image{0.5}{05-resources/img/analyze/field-propagator-near-miss.png}
-{Path simulation with chord (Source: Set Johnson https://github.com/celeritas-project/celeritas-docs/blob/main/presentations/doe-briefing-20201019/pres.pdf)}
-{fig:analyze:atlas:implementation:field-propagator-near-miss}
-
-\image{0.5}{05-resources/img/analyze/celeritas-kernel.png}
-{Detail of the kernels (Source Seth Johnson https://github.com/celeritas-project/celeritas-docs/blob/main/presentations/geant4-collab-202209/Celeritas.pdf)}
-{fig:analyze:atlas:implementation:kernel}
-
-\image{0.5}{05-resources/img/analyze/celeritas-gpu-algorithm.png}
-{GPU algorithm (Source: Seth Johnson https://github.com/celeritas-project/celeritas-docs/blob/main/presentations/lbnl-202302/srj-lbnl-2023.pdf)}
-{fig:analyze:atlas:implementation:gpu-algorithm}
